@@ -7,6 +7,7 @@ const xssClean = require('xss-clean');
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 import { connectDB } from './config/db';
+import error from './middleware/error';
 
 // Config
 dotenv.config();
