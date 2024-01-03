@@ -1,16 +1,17 @@
+import { UserSchema } from '../types';
 import { Schema, model } from 'mongoose';
 
-const userSchema = new Schema(
+const userSchema = new Schema<UserSchema>(
   {
     firstName: {
       type: String,
       trim: true,
-      required: [true, 'Please provide a name'],
+      required: [true, 'Please provide first name'],
     },
     lastName: {
       type: String,
       trim: true,
-      required: [true, 'Please provide a name'],
+      required: [true, 'Please provide last name'],
     },
     email: {
       type: String,
