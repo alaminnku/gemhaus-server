@@ -6,6 +6,7 @@ import 'express-async-errors';
 const xssClean = require('xss-clean');
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
+import { connectDB } from './config/db';
 
 // Config
 dotenv.config();
@@ -14,6 +15,7 @@ dotenv.config();
 const PORT = process.env.PORT || 5100;
 
 // Connect to database
+connectDB();
 
 // App
 const app = express();
