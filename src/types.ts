@@ -7,15 +7,17 @@ declare global {
 }
 
 export type UserSchema = {
-  firstName: string;
-  lastName: string;
+  name: {
+    first: string;
+    last: string;
+  };
   email: string;
   role: string;
   password: string;
   status: string;
 };
 
-export type BlogSchema = {
+export type ArticleSchema = {
   title: string;
   slug: string;
   content: string;

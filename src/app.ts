@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 import { connectDB } from './config/db';
 import error from './middleware/error';
+import Article from './routes/article';
 
 // Config
 dotenv.config();
@@ -36,6 +37,7 @@ app.use(
 );
 
 // Routes
+app.use('/articles', Article);
 
 // Error middleware - Put after all main routes
 app.use(error);

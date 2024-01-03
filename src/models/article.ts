@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { BlogSchema } from '../types';
+import { ArticleSchema } from '../types';
 
-const blogSchema = new Schema<BlogSchema>(
+const articleSchema = new Schema<ArticleSchema>(
   {
     title: {
       type: String,
@@ -20,8 +20,8 @@ const blogSchema = new Schema<BlogSchema>(
     },
     image: {
       type: String,
-      trim: true,
-      required: [true, 'Please provide an image'],
+      // trim: true,
+      // required: [true, 'Please provide an image'],
     },
   },
   {
@@ -29,4 +29,4 @@ const blogSchema = new Schema<BlogSchema>(
   }
 );
 
-export default model('Blog', blogSchema);
+export default model('Article', articleSchema);
