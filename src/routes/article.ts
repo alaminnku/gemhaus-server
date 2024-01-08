@@ -1,30 +1,27 @@
 import { Router } from 'express';
 import Article from '../models/article';
-import { deleteFields, resizeImage } from '../lib/utils';
-import { uploadSingle } from '../config/multer';
+import { deleteFields, resizeImage, upload } from '../lib/utils';
 import { uploadImage } from '../config/s3';
 import { requiredFields } from '../lib/messages';
 
 const router = Router();
 
 // Create an article
-router.post('/', uploadSingle, async (req, res) => {
+router.post('/', upload.single('file'), async (req, res) => {
+  const file = req.file;
   const { title, content } = req.body;
 
   // Validate data
-  if (!title || !content) {
+  if (!title || !content || !file) {
     console.log(requiredFields);
     res.status(400);
     throw new Error(requiredFields);
   }
 
   // Upload image to S3
-  let image;
-  if (req.file) {
-    const { buffer, mimetype } = req.file;
-    const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
-    image = await uploadImage(res, modifiedBuffer, mimetype);
-  }
+  const { buffer, mimetype } = file;
+  const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
+  const image = await uploadImage(res, modifiedBuffer, mimetype);
 
   // Create article
   try {
@@ -53,7 +50,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const article = await Article.findById({ _id: id })
+    const article = await Article.findById(id)
       .select('-updatedAt')
       .lean()
       .orFail();
