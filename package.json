@@ -1,6 +1,7 @@
 {
   "main": "index.js",
   "scripts": {
+    "tsc": "tsc",
     "start": "node ./dist/app.js",
     "postinstall": "npm run tsc",
     "migrate-mongo": "migrate-mongo",

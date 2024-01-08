@@ -7,7 +7,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { generateRandomString } from '../lib/utils';
 
-// Config
+// Env config
 dotenv.config();
 
 // Configure s3 client

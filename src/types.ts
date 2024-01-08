@@ -19,7 +19,6 @@ export type UserSchema = {
 
 export type ArticleSchema = {
   title: string;
-  slug: string;
   content: string;
   image: string;
 };
