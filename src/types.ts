@@ -32,5 +32,5 @@ export type PropertySchema = {
   rating: number;
   isFeatured: boolean;
   description: string;
-  image: string;
+  images: string[];
 };

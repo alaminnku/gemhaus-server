@@ -1,21 +1,24 @@
 import { Router } from 'express';
 import Article from '../models/article';
 import { deleteFields, resizeImage } from '../lib/utils';
-import { upload } from '../config/multer';
+import { uploadSingle } from '../config/multer';
 import { uploadImage } from '../config/s3';
+import { requiredFields } from '../lib/messages';
 
 const router = Router();
 
 // Create an article
-router.post('/', upload, async (req, res) => {
+router.post('/', uploadSingle, async (req, res) => {
   const { title, content } = req.body;
 
+  // Validate data
   if (!title || !content) {
-    console.log('Please provide all fields');
+    console.log(requiredFields);
     res.status(400);
-    throw new Error('Please provide all fields');
+    throw new Error(requiredFields);
   }
 
+  // Upload image to S3
   let image;
   if (req.file) {
     const { buffer, mimetype } = req.file;
@@ -23,6 +26,7 @@ router.post('/', upload, async (req, res) => {
     image = await uploadImage(res, modifiedBuffer, mimetype);
   }
 
+  // Create article
   try {
     const response = await Article.create({ title, content, image });
     const article = response.toObject();

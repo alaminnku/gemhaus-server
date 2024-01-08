@@ -9,6 +9,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import { connectDB } from './config/db';
 import error from './middleware/error';
 import Article from './routes/article';
+import Properties from './routes/property';
 
 // Config
 dotenv.config();
@@ -41,6 +42,7 @@ app.use(
 
 // Routes
 app.use('/articles', Article);
+app.use('/properties', Properties);
 
 // Error middleware - Put after all main routes
 app.use(error);

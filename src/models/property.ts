@@ -36,11 +36,13 @@ const propertySchema = new Schema<PropertySchema>(
       trim: true,
       required: [true, 'Please provide  description'],
     },
-    image: {
-      type: String,
-      trim: true,
-      required: [true, 'Please provide  an image'],
-    },
+    images: [
+      {
+        type: String,
+        trim: true,
+        required: [true, 'Please provide property images'],
+      },
+    ],
   },
   {
     timestamps: true,

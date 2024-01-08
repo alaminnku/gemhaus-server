@@ -1,7 +1,7 @@
 import multer, { MulterError } from 'multer';
 
 // Upload function
-export const upload = multer({
+const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (
@@ -15,4 +15,8 @@ export const upload = multer({
       cb(new MulterError('LIMIT_UNEXPECTED_FILE'));
     }
   },
-}).single('file');
+});
+
+// Upload types
+export const uploadSingle = upload.single('file');
+export const uploadMultiple = upload.array('files');
