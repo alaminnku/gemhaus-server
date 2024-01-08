@@ -8,11 +8,6 @@ const articleSchema = new Schema<ArticleSchema>(
       trim: true,
       required: [true, 'Please provide a title'],
     },
-    slug: {
-      type: String,
-      trim: true,
-      required: [true, 'Please provide a slug'],
-    },
     content: {
       type: String,
       trim: true,
@@ -20,8 +15,8 @@ const articleSchema = new Schema<ArticleSchema>(
     },
     image: {
       type: String,
-      // trim: true,
-      // required: [true, 'Please provide an image'],
+      trim: true,
+      required: [true, 'Please provide image URL'],
     },
   },
   {

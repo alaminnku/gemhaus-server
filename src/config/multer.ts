@@ -1,10 +1,8 @@
 import multer, { MulterError } from 'multer';
 
-const storage = multer.memoryStorage();
-
 // Upload function
 export const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     if (
       file.mimetype === 'image/png' ||
