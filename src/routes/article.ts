@@ -37,4 +37,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get a single article
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const article = await Article.findById({ _id: id })
+      .select('-updatedAt')
+      .lean()
+      .orFail();
+    res.status(200).json(article);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
 export default router;
