@@ -33,8 +33,8 @@ router.post('/', upload.array('files'), async (req, res) => {
   let images = [];
   for (let i = 0; i < files.length; i++) {
     const { buffer, mimetype } = files[i];
-    const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
-    const image = await uploadImage(res, modifiedBuffer, mimetype);
+    // const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
+    const image = await uploadImage(res, buffer, mimetype);
     images.push(image);
   }
 

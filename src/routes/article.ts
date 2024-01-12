@@ -20,8 +20,8 @@ router.post('/', upload.single('file'), async (req, res) => {
 
   // Upload image to S3
   const { buffer, mimetype } = file;
-  const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
-  const image = await uploadImage(res, modifiedBuffer, mimetype);
+  // const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
+  const image = await uploadImage(res, buffer, mimetype);
 
   // Create article
   try {
