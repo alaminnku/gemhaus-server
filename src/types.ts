@@ -24,12 +24,18 @@ export type ArticleSchema = {
 };
 
 export type PropertySchema = {
+  hostawayId: number;
   name: string;
   price: number;
   beds: number;
   baths: number;
   guests: number;
   rating: number;
+  serviceFee: number;
+  salesTax: number;
+  lodgingTax: number;
+  insuranceFee: number;
+  cleaningFee: number;
   isFeatured: boolean;
   description: string;
   images: string[];
