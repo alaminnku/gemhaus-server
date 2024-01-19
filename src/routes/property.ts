@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requiredFields } from '../lib/messages';
-import { deleteFields, resizeImage, upload } from '../lib/utils';
+import { deleteFields, upload } from '../lib/utils';
 import { uploadImage } from '../config/s3';
 import Property from '../models/property';
 
@@ -9,17 +9,37 @@ const router = Router();
 // Create a property
 router.post('/', upload.array('files'), async (req, res) => {
   const files = req.files as Express.Multer.File[];
-  const { name, price, beds, baths, guests, rating, isFeatured, description } =
-    req.body;
+  const {
+    hostawayId,
+    name,
+    price,
+    beds,
+    baths,
+    guests,
+    rating,
+    isFeatured,
+    serviceFee,
+    salesTax,
+    lodgingTax,
+    insuranceFee,
+    cleaningFee,
+    description,
+  } = req.body;
 
   // Validate data
   if (
+    !hostawayId ||
     !name ||
     !price ||
     !beds ||
     !baths ||
     !guests ||
     !rating ||
+    !serviceFee ||
+    !salesTax ||
+    !lodgingTax ||
+    !insuranceFee ||
+    !cleaningFee ||
     !isFeatured ||
     !description ||
     files.length === 0
@@ -33,7 +53,6 @@ router.post('/', upload.array('files'), async (req, res) => {
   let images = [];
   for (let i = 0; i < files.length; i++) {
     const { buffer, mimetype } = files[i];
-    // const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
     const image = await uploadImage(res, buffer, mimetype);
     images.push(image);
   }
@@ -41,6 +60,7 @@ router.post('/', upload.array('files'), async (req, res) => {
   // Create property
   try {
     const response = await Property.create({
+      hostawayId,
       name,
       price,
       beds,
@@ -48,6 +68,11 @@ router.post('/', upload.array('files'), async (req, res) => {
       guests,
       rating,
       images,
+      serviceFee,
+      salesTax,
+      lodgingTax,
+      insuranceFee,
+      cleaningFee,
       isFeatured,
       description,
     });
