@@ -3,7 +3,7 @@ import { gateway } from '../config/braintree';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
   const { nonce } = req.body;
   console.log(req.body);
 
