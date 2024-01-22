@@ -32,15 +32,15 @@ const propertySchema = new Schema<PropertySchema>(
       type: Number,
       required: [true, 'Please provide a rating'],
     },
-    serviceFee: {
+    serviceFeePercent: {
       type: Number,
       required: [true, 'Please provide service fee'],
     },
-    salesTax: {
+    salesTaxPercent: {
       type: Number,
       required: [true, 'Please provide sales tax'],
     },
-    lodgingTax: {
+    lodgingTaxPercent: {
       type: Number,
       required: [true, 'Please provide lodging tax'],
     },

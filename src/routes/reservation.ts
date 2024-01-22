@@ -3,8 +3,9 @@ import { gateway } from '../config/braintree';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.get('/', async (req, res) => {
   const { nonce } = req.body;
+  console.log(req.body);
 
   try {
     const payment = await gateway.transaction.sale({
@@ -14,6 +15,8 @@ router.post('/', async (req, res) => {
         submitForSettlement: true,
       },
     });
+
+    res.status(200).json(payment);
   } catch (err) {
     console.log(err);
     throw err;

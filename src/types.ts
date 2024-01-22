@@ -31,9 +31,9 @@ export type PropertySchema = {
   baths: number;
   guests: number;
   rating: number;
-  serviceFee: number;
-  salesTax: number;
-  lodgingTax: number;
+  serviceFeePercent: number;
+  salesTaxPercent: number;
+  lodgingTaxPercent: number;
   insuranceFee: number;
   cleaningFee: number;
   isFeatured: boolean;

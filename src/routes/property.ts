@@ -18,12 +18,12 @@ router.post('/', upload.array('files'), async (req, res) => {
     guests,
     rating,
     isFeatured,
-    serviceFee,
-    salesTax,
-    lodgingTax,
     insuranceFee,
     cleaningFee,
     description,
+    serviceFeePercent,
+    salesTaxPercent,
+    lodgingTaxPercent,
   } = req.body;
 
   // Validate data
@@ -35,14 +35,13 @@ router.post('/', upload.array('files'), async (req, res) => {
     !baths ||
     !guests ||
     !rating ||
-    !serviceFee ||
-    !salesTax ||
-    !lodgingTax ||
+    !description ||
+    files.length === 0 ||
     !insuranceFee ||
     !cleaningFee ||
-    !isFeatured ||
-    !description ||
-    files.length === 0
+    !serviceFeePercent ||
+    !salesTaxPercent ||
+    !lodgingTaxPercent
   ) {
     console.log(requiredFields);
     res.status(400);
@@ -68,13 +67,13 @@ router.post('/', upload.array('files'), async (req, res) => {
       guests,
       rating,
       images,
-      serviceFee,
-      salesTax,
-      lodgingTax,
+      description,
       insuranceFee,
       cleaningFee,
-      isFeatured,
-      description,
+      serviceFeePercent,
+      salesTaxPercent,
+      lodgingTaxPercent,
+      isFeatured: isFeatured ? true : false,
     });
     const property = response.toObject();
     deleteFields(property, ['createdAt']);
