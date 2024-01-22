@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import Article from '../models/article';
-import { deleteFields, resizeImage, upload } from '../lib/utils';
+import { deleteFields, upload } from '../lib/utils';
 import { uploadImage } from '../config/s3';
 import { requiredFields } from '../lib/messages';
 
@@ -20,7 +20,6 @@ router.post('/', upload.single('file'), async (req, res) => {
 
   // Upload image to S3
   const { buffer, mimetype } = file;
-  // const modifiedBuffer = await resizeImage(res, buffer, 800, 500);
   const image = await uploadImage(res, buffer, mimetype);
 
   // Create article
