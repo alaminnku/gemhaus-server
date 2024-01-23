@@ -3,6 +3,7 @@ import { requiredFields } from '../lib/messages';
 import { deleteFields, upload } from '../lib/utils';
 import { uploadImage } from '../config/s3';
 import Property from '../models/property';
+import { gateway } from '../config/braintree';
 
 const router = Router();
 
@@ -104,6 +105,27 @@ router.get('/:id', async (req, res) => {
       .lean()
       .orFail();
     res.status(200).json(property);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Book a property
+router.post('/:id/reserve', async (req, res) => {
+  const { nonce } = req.body;
+  console.log(req.body);
+
+  try {
+    const payment = await gateway.transaction.sale({
+      amount: '10.00',
+      paymentMethodNonce: nonce,
+      options: {
+        submitForSettlement: true,
+      },
+    });
+
+    res.status(200).json(payment);
   } catch (err) {
     console.log(err);
     throw err;

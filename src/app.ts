@@ -11,7 +11,6 @@ import error from './middleware/error';
 import Article from './routes/article';
 import Property from './routes/property';
 import Braintree from './routes/braintree';
-import Reservation from './routes/reservation';
 
 // Config
 dotenv.config();
@@ -46,7 +45,6 @@ app.use(
 app.use('/articles', Article);
 app.use('/properties', Property);
 app.use('/braintree', Braintree);
-app.use('/reservation', Reservation);
 
 // Error middleware - Put after all main routes
 app.use(error);
