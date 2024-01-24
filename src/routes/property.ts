@@ -1,16 +1,15 @@
-import { Router, response } from 'express';
+import { Router } from 'express';
 import { requiredFields } from '../lib/messages';
 import {
   deleteFields,
-  getHostawayAccessToken,
+  fetchHostawayData,
   getISODate,
   upload,
 } from '../lib/utils';
 import { uploadImage } from '../config/s3';
 import Property from '../models/property';
 import { gateway } from '../config/braintree';
-import axios from 'axios';
-import { HostawayDate } from '../types';
+import { HostawayCalendar } from '../types';
 
 const router = Router();
 
@@ -119,7 +118,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Book a property
-router.post('/:id/reserve', upload.none(), async (req, res) => {
+router.post('/:id/book', upload.none(), async (req, res) => {
   const { id } = req.params;
   const {
     nonce,
@@ -156,16 +155,11 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
     throw new Error(requiredFields);
   }
 
-  console.log(req.body);
-
   try {
     const property = await Property.findById(id).lean().orFail();
-    const accessToken = await getHostawayAccessToken();
-    const calendarResponse = await axios.get(
-      `${process.env.HOSTAWAY_API_URL}/listings/${property.hostawayId}/calendar`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
+    const calendar: HostawayCalendar = await fetchHostawayData(
+      `/listings/${property.hostawayId}/calendar`
     );
-    const calendar: HostawayDate[] = calendarResponse.data.result;
 
     // All dates between check in and checkout
     const dates: { [key: string]: boolean } = {};
@@ -200,6 +194,8 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
         submitForSettlement: true,
       },
     });
+
+    console.log(totalPrice);
 
     const data = {
       channelId: 2000,

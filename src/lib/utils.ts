@@ -1,6 +1,10 @@
 import { randomBytes } from 'crypto';
 import multer, { MulterError } from 'multer';
-import axios from 'axios';
+
+type FetchHostawayDataOptions = {
+  body?: string;
+  method?: 'POST';
+};
 
 // Delete unnecessary mongodb fields
 export const deleteFields = (data: object, moreFields?: string[]): void => {
@@ -40,16 +44,34 @@ export async function getHostawayAccessToken() {
     client_secret: process.env.HOSTAWAY_API_KEY as string,
   });
 
-  const response = await axios.post(
-    `${process.env.HOSTAWAY_API_URL}/accessTokens`,
-    data,
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    }
-  );
-  return response.data.access_token;
+  const response = await fetch(`${process.env.HOSTAWAY_API_URL}/accessTokens`, {
+    method: 'POST',
+    body: data,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  const result = await response.json();
+  if (response.ok) return result.access_token;
+  throw new Error('Error getting Hostaway access key');
+}
+
+// Fetch Hostaway data
+export async function fetchHostawayData(
+  path: string,
+  options?: FetchHostawayDataOptions
+) {
+  const accessToken = await getHostawayAccessToken();
+  const response = await fetch(`${process.env.HOSTAWAY_API_URL}${path}`, {
+    ...options,
+    cache: 'no-cache',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  const data = await response.json();
+  if (response.ok) return data.result;
+  throw new Error('Error fetching Hostaway data');
 }
 
 // Get ISO date
