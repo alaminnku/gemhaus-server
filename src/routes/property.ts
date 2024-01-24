@@ -130,11 +130,33 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
     zipCode,
     address,
     city,
+    state,
     country,
     numberOfGuests,
     arrivalDate,
     departureDate,
   } = req.body;
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone ||
+    !address ||
+    !city ||
+    !state ||
+    !zipCode ||
+    !country ||
+    !numberOfGuests ||
+    !arrivalDate ||
+    !departureDate
+  ) {
+    console.log(requiredFields);
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+
+  console.log(req.body);
 
   try {
     const property = await Property.findById(id).lean().orFail();
