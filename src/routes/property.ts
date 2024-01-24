@@ -112,9 +112,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // Book a property
-router.post('/:id/reserve', async (req, res) => {
-  const { nonce } = req.body;
-  console.log(req.body);
+router.post('/:id/reserve', upload.none(), async (req, res) => {
+  const { id } = req.params;
+  const { nonce, firstName, lastName, email, phone } = req.body;
 
   try {
     const payment = await gateway.transaction.sale({
@@ -125,7 +125,7 @@ router.post('/:id/reserve', async (req, res) => {
       },
     });
 
-    res.status(200).json(payment);
+    res.status(200).json({ id, firstName });
   } catch (err) {
     console.log(err);
     throw err;
