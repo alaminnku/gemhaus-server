@@ -40,3 +40,9 @@ export type PropertySchema = {
   description: string;
   images: string[];
 };
+
+export type HostawayDate = {
+  date: string;
+  price: number;
+  status: 'available';
+};

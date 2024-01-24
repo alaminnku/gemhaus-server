@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 import multer, { MulterError } from 'multer';
+import axios from 'axios';
 
 // Delete unnecessary mongodb fields
 export const deleteFields = (data: object, moreFields?: string[]): void => {
@@ -29,3 +30,28 @@ export const upload = multer({
     }
   },
 });
+
+// Get Hostaway access token
+export async function getHostawayAccessToken() {
+  const data = new URLSearchParams({
+    scope: 'general',
+    grant_type: 'client_credentials',
+    client_id: process.env.HOSTAWAY_ACCOUNT_ID as string,
+    client_secret: process.env.HOSTAWAY_API_KEY as string,
+  });
+
+  const response = await axios.post(
+    `${process.env.HOSTAWAY_API_URL}/accessTokens`,
+    data,
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+  );
+  return response.data.access_token;
+}
+
+// Get ISO date
+export const getISODate = (input: Date | string) =>
+  new Date(input).toISOString().split('T')[0];
