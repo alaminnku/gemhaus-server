@@ -131,9 +131,9 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
     address,
     city,
     country,
-    startDate,
-    endDate,
-    guestCount,
+    numberOfGuests,
+    arrivalDate,
+    departureDate,
   } = req.body;
 
   try {
@@ -147,8 +147,8 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
 
     // All dates between check in and checkout
     const dates: { [key: string]: boolean } = {};
-    const currDate = new Date(startDate);
-    while (currDate <= new Date(endDate)) {
+    const currDate = new Date(arrivalDate);
+    while (currDate <= new Date(departureDate)) {
       dates[getISODate(currDate)] = true;
       currDate.setDate(currDate.getDate() + 1);
     }
@@ -190,9 +190,9 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
       guestCity: city,
       guestCountry: country,
       guestEmail: email,
-      numberOfGuests: guestCount,
-      arrivalDate: startDate,
-      departureDate: endDate,
+      numberOfGuests,
+      arrivalDate,
+      departureDate,
       checkInTime: 16,
       checkOutTime: 11,
       phone,
@@ -200,7 +200,7 @@ router.post('/:id/reserve', upload.none(), async (req, res) => {
       cleaningFee: property.cleaningFee,
 
       // Update later
-      adults: guestCount,
+      adults: numberOfGuests,
       children: null,
       infants: null,
       pets: null,
