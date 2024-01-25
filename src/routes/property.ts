@@ -170,6 +170,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
     }
     const bookingDates = calendar.filter((el) => dates[el.date]);
 
+    // Check if all booking dates are available
     if (!bookingDates.every((el) => el.status === 'available')) {
       console.log('Invalid booking dates');
       res.status(400);
@@ -178,13 +179,17 @@ router.post('/:id/book', upload.none(), async (req, res) => {
 
     // Nights' total
     const price = bookingDates.reduce((acc, curr) => acc + curr.price, 0);
+
+    // Taxes and total price
+    const lodgingTax = (price * property.lodgingTaxPercent) / 100;
+    const salesTax = (price * property.salesTaxPercent) / 100;
     const totalPrice =
       price +
+      salesTax +
+      lodgingTax +
       property.cleaningFee +
       property.insuranceFee +
-      (price * property.serviceFeePercent) / 100 +
-      (price * property.lodgingTaxPercent) / 100 +
-      (price * property.salesTaxPercent) / 100;
+      (price * property.serviceFeePercent) / 100;
 
     // Make payment
     const payment = await gateway.transaction.sale({
@@ -194,8 +199,6 @@ router.post('/:id/book', upload.none(), async (req, res) => {
         submitForSettlement: true,
       },
     });
-
-    console.log(totalPrice);
 
     const data = {
       channelId: 2000,
@@ -211,66 +214,73 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       numberOfGuests,
       arrivalDate,
       departureDate,
-      checkInTime: 16,
-      checkOutTime: 11,
       phone,
       totalPrice,
       cleaningFee: property.cleaningFee,
-
-      // Update later
       adults: numberOfGuests,
       children: null,
       infants: null,
       pets: null,
-      taxAmount: null,
       currency: 'USD',
       guestLocale: 'en',
+      checkInTime: 16,
+      checkOutTime: 11,
+      guestPicture: null,
+      taxAmount: lodgingTax + salesTax,
 
-      // What are these
-      isManuallyChecked: 0,
-      isInitial: 0,
-      guestRecommendations: 0,
-      guestTrips: 0,
-      guestWork: null,
-      isGuestIdentityVerified: 0,
-      isGuestVerifiedByEmail: 0,
-      isGuestVerifiedByWorkEmail: 0,
-      isGuestVerifiedByFacebook: 0,
-      isGuestVerifiedByGovernmentId: 0,
-      isGuestVerifiedByPhone: 0,
-      isGuestVerifiedByReviews: 0,
-      channelCommissionAmount: 0,
-      securityDepositFee: 0,
-      isPaid: null,
-      hostNote: null,
-      guestNote: null,
-      doorCode: null,
-      doorCodeVendor: null,
-      doorCodeInstruction: null,
-      comment: null,
-      airbnbExpectedPayoutAmount: 111.12,
-      airbnbListingBasePrice: 110,
-      airbnbListingCancellationHostFee: 12.02,
-      airbnbListingCancellationPayout: 122,
-      airbnbListingCleaningFee: 1,
-      airbnbListingHostFee: 43,
-      airbnbListingSecurityPrice: 12,
-      airbnbOccupancyTaxAmountPaidToHost: 332,
-      airbnbTotalPaidAmount: 12,
-      airbnbTransientOccupancyTaxPaidAmount: 0,
-      airbnbCancellationPolicy: 'moderate',
-      customerUserId: null,
-      customFieldValues: [],
+      // // Where do we get these from?
+      // isManuallyChecked: 0,
+      // isInitial: 0,
+      // guestRecommendations: 0,
+      // guestTrips: 0,
+      // guestWork: null,
+      // isGuestIdentityVerified: 0,
+      // isGuestVerifiedByEmail: 0,
+      // isGuestVerifiedByWorkEmail: 0,
+      // isGuestVerifiedByFacebook: 0,
+      // isGuestVerifiedByGovernmentId: 0,
+      // isGuestVerifiedByPhone: 0,
+      // isGuestVerifiedByReviews: 0,
+      // channelCommissionAmount: 0,
+      // securityDepositFee: 0,
+      // isPaid: null,
+      // hostNote: null,
+      // guestNote: null,
+      // doorCode: null,
+      // doorCodeVendor: null,
+      // doorCodeInstruction: null,
+      // comment: null,
+      // customerUserId: null,
+      // customFieldValues: [],
+
+      // // Where do we get airbnb details from?
+      // // Do we provide 0 or null to these values?
+      // airbnbExpectedPayoutAmount: null,
+      // airbnbListingBasePrice: null,
+      // airbnbListingCancellationHostFee: null,
+      // airbnbListingCancellationPayout: null,
+      // airbnbListingCleaningFee: null,
+      // airbnbListingHostFee: null,
+      // airbnbListingSecurityPrice: null,
+      // airbnbOccupancyTaxAmountPaidToHost: null,
+      // airbnbTotalPaidAmount: null,
+      // airbnbTransientOccupancyTaxPaidAmount: null,
+      // airbnbCancellationPolicy: null,
     };
 
-    // Create Hostaway reservation
-    // const reservationResponse = await axios.post(
-    //   `${process.env.HOSTAWAY_API_URL}/reservations?forceOverbooking=1`,
-    //   data,
-    //   { headers: { Authorization: `Bearer ${accessToken}` } }
-    // );
+    console.log(totalPrice);
 
-    // Save reservation data to database
+    // Create Hostaway reservation
+    const reservationResponse = await fetchHostawayData(
+      `/reservations?forceOverbooking=1`,
+      {
+        body: JSON.stringify(data),
+      }
+    );
+
+    console.log(reservationResponse);
+
+    // Save user data to database
 
     res.status(200).json({ status: 'success' });
   } catch (err) {
