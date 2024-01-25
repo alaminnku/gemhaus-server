@@ -192,7 +192,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
 
     // Make payment
     const payment = await gateway.transaction.sale({
-      amount: totalPrice.toString(),
+      amount: totalPrice.toFixed(2),
       paymentMethodNonce: nonce,
       options: {
         submitForSettlement: true,
