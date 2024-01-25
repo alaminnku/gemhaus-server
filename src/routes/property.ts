@@ -122,8 +122,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
   const { id } = req.params;
   const {
     nonce,
-    firstName,
-    lastName,
+    name,
     email,
     phone,
     zipCode,
@@ -137,8 +136,8 @@ router.post('/:id/book', upload.none(), async (req, res) => {
   } = req.body;
 
   if (
-    !firstName ||
-    !lastName ||
+    !nonce ||
+    !name ||
     !email ||
     !phone ||
     !address ||
