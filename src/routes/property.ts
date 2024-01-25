@@ -202,9 +202,9 @@ router.post('/:id/book', upload.none(), async (req, res) => {
     const data = {
       channelId: 2000,
       listingMapId: property.hostawayId,
-      guestName: `${firstName} ${lastName}`,
-      guestFirstName: firstName,
-      guestLastName: lastName,
+      guestName: name,
+      guestFirstName: name,
+      guestLastName: name,
       guestZipCode: zipCode,
       guestAddress: address,
       guestCity: city,
