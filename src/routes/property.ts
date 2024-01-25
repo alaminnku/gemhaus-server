@@ -198,6 +198,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
         submitForSettlement: true,
       },
     });
+    console.log(payment);
 
     // Hostaway reservation data
     const data = {
@@ -276,8 +277,6 @@ router.post('/:id/book', upload.none(), async (req, res) => {
         body: JSON.stringify(data),
       }
     );
-
-    console.log(reservationResponse);
 
     // Save user data to database
 
