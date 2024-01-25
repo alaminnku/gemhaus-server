@@ -199,6 +199,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       },
     });
 
+    // Hostaway reservation data
     const data = {
       channelId: 2000,
       listingMapId: property.hostawayId,
@@ -267,12 +268,11 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       // airbnbCancellationPolicy: null,
     };
 
-    console.log(totalPrice);
-
     // Create Hostaway reservation
     const reservationResponse = await fetchHostawayData(
       `/reservations?forceOverbooking=1`,
       {
+        method: 'POST',
         body: JSON.stringify(data),
       }
     );
