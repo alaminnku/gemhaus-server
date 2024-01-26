@@ -197,8 +197,16 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       options: {
         submitForSettlement: true,
       },
+      customer: {
+        email,
+      },
     });
-    console.log(payment);
+
+    if (!payment.success) {
+      console.log('Payment failed');
+      res.status(500);
+      throw new Error('Payment failed');
+    }
 
     // Hostaway reservation data
     const data = {
@@ -228,55 +236,13 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       checkOutTime: 11,
       guestPicture: null,
       taxAmount: lodgingTax + salesTax,
-
-      // // Where do we get these from?
-      // isManuallyChecked: 0,
-      // isInitial: 0,
-      // guestRecommendations: 0,
-      // guestTrips: 0,
-      // guestWork: null,
-      // isGuestIdentityVerified: 0,
-      // isGuestVerifiedByEmail: 0,
-      // isGuestVerifiedByWorkEmail: 0,
-      // isGuestVerifiedByFacebook: 0,
-      // isGuestVerifiedByGovernmentId: 0,
-      // isGuestVerifiedByPhone: 0,
-      // isGuestVerifiedByReviews: 0,
-      // channelCommissionAmount: 0,
-      // securityDepositFee: 0,
-      // isPaid: null,
-      // hostNote: null,
-      // guestNote: null,
-      // doorCode: null,
-      // doorCodeVendor: null,
-      // doorCodeInstruction: null,
-      // comment: null,
-      // customerUserId: null,
-      // customFieldValues: [],
-
-      // // Where do we get airbnb details from?
-      // // Do we provide 0 or null to these values?
-      // airbnbExpectedPayoutAmount: null,
-      // airbnbListingBasePrice: null,
-      // airbnbListingCancellationHostFee: null,
-      // airbnbListingCancellationPayout: null,
-      // airbnbListingCleaningFee: null,
-      // airbnbListingHostFee: null,
-      // airbnbListingSecurityPrice: null,
-      // airbnbOccupancyTaxAmountPaidToHost: null,
-      // airbnbTotalPaidAmount: null,
-      // airbnbTransientOccupancyTaxPaidAmount: null,
-      // airbnbCancellationPolicy: null,
     };
 
     // Create Hostaway reservation
-    const reservationResponse = await fetchHostawayData(
-      `/reservations?forceOverbooking=1`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }
-    );
+    await fetchHostawayData(`/reservations?forceOverbooking=1`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
 
     // Save user data to database
 
