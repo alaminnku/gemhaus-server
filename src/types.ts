@@ -27,18 +27,19 @@ export type PropertySchema = {
   hostawayId: number;
   name: string;
   price: number;
-  beds: number;
-  baths: number;
   guests: number;
   rating: number;
-  serviceFeePercent: number;
-  salesTaxPercent: number;
-  lodgingTaxPercent: number;
-  insuranceFee: number;
-  cleaningFee: number;
+  images: string[];
+  bedrooms: number;
+  bathrooms: number;
   isFeatured: boolean;
   description: string;
-  images: string[];
+  insuranceFee: number;
+  cleaningFee: number;
+  salesTaxPercent: number;
+  serviceFeePercent: number;
+  lodgingTaxPercent: number;
+  offerings: { name: string; icon: string }[];
 };
 
 export type HostawayCalendar = {

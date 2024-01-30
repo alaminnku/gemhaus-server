@@ -10,6 +10,7 @@ import { uploadImage } from '../config/s3';
 import Property from '../models/property';
 import { gateway } from '../config/braintree';
 import { HostawayCalendar } from '../types';
+import { propertyOfferings } from '../data/offerings';
 
 const router = Router();
 
@@ -20,14 +21,15 @@ router.post('/', upload.array('files'), async (req, res) => {
     hostawayId,
     name,
     price,
-    beds,
-    baths,
     guests,
     rating,
-    isFeatured,
-    insuranceFee,
+    bedrooms,
+    bathrooms,
+    offerings,
     cleaningFee,
     description,
+    isFeatured,
+    insuranceFee,
     serviceFeePercent,
     salesTaxPercent,
     lodgingTaxPercent,
@@ -38,17 +40,18 @@ router.post('/', upload.array('files'), async (req, res) => {
     !hostawayId ||
     !name ||
     !price ||
-    !beds ||
-    !baths ||
     !guests ||
     !rating ||
-    !description ||
-    files.length === 0 ||
-    !insuranceFee ||
+    !bedrooms ||
+    !bathrooms ||
     !cleaningFee ||
+    !description ||
+    !insuranceFee ||
     !serviceFeePercent ||
     !salesTaxPercent ||
-    !lodgingTaxPercent
+    !lodgingTaxPercent ||
+    files.length === 0 ||
+    offerings.length === 0
   ) {
     console.log(requiredFields);
     res.status(400);
@@ -69,18 +72,21 @@ router.post('/', upload.array('files'), async (req, res) => {
       hostawayId,
       name,
       price,
-      beds,
-      baths,
       guests,
       rating,
       images,
+      bedrooms,
+      bathrooms,
+      cleaningFee,
       description,
       insuranceFee,
-      cleaningFee,
-      serviceFeePercent,
       salesTaxPercent,
       lodgingTaxPercent,
+      serviceFeePercent,
       isFeatured: isFeatured ? true : false,
+      offerings: propertyOfferings.filter((offering) =>
+        offerings.includes(offering.name)
+      ),
     });
     const property = response.toObject();
     deleteFields(property, ['createdAt']);
@@ -100,6 +106,11 @@ router.get('/', async (req, res) => {
     console.log(err);
     throw err;
   }
+});
+
+// Get offerings
+router.get('/offerings', async (req, res) => {
+  res.status(200).json(propertyOfferings);
 });
 
 // Get a single property

@@ -16,13 +16,13 @@ const propertySchema = new Schema<PropertySchema>(
       type: Number,
       required: [true, 'Please provide a price'],
     },
-    beds: {
+    bedrooms: {
       type: Number,
-      required: [true, 'Please provide number of beds'],
+      required: [true, 'Please provide number of bedrooms'],
     },
-    baths: {
+    bathrooms: {
       type: Number,
-      required: [true, 'Please provide number of baths'],
+      required: [true, 'Please provide number of bathrooms'],
     },
     guests: {
       type: Number,
@@ -65,6 +65,20 @@ const propertySchema = new Schema<PropertySchema>(
         type: String,
         trim: true,
         required: [true, 'Please provide property images'],
+      },
+    ],
+    offerings: [
+      {
+        name: {
+          type: String,
+          trim: true,
+          required: [true, 'Please provide offering name'],
+        },
+        icon: {
+          type: String,
+          trim: true,
+          required: [true, 'Please provide offering icon'],
+        },
       },
     ],
   },
