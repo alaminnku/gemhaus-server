@@ -1,3 +1,4 @@
+import mail from '@sendgrid/mail';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
@@ -11,6 +12,7 @@ import error from './middleware/error';
 import Article from './routes/article';
 import Property from './routes/property';
 import Braintree from './routes/braintree';
+import Mail from './routes/mail';
 
 // Config
 dotenv.config();
@@ -18,8 +20,9 @@ dotenv.config();
 // Port
 const PORT = process.env.PORT || 5100;
 
-// Connect to database
+// Connect to database and config SendGrid mail
 connectDB();
+mail.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 // App
 const app = express();
@@ -45,6 +48,7 @@ app.use(
 app.use('/articles', Article);
 app.use('/properties', Property);
 app.use('/braintree', Braintree);
+app.use('/mail', Mail);
 
 // Error middleware - Put after all main routes
 app.use(error);
