@@ -246,7 +246,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
 
     // Save user data to database
 
-    res.status(200).json({ status: 'success' });
+    res.status(200).json({ message: 'Property booked' });
   } catch (err) {
     console.log(err);
     throw err;

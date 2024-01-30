@@ -78,20 +78,6 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
       .json({ message: 'Stripe signature verification failed' });
   }
 
-  //   // Stripe invalid checkout session id
-  //   if (err.message.includes('No such checkout.session')) {
-  //     return res
-  //       .status(400)
-  //       .json({ message: 'Please provide a valid checkout session' });
-  //   }
-
-  //   // Stripe checkout amount too small
-  //   if (err.raw.code === 'amount_too_small') {
-  //     return res
-  //       .status(400)
-  //       .json({ message: 'Checkout amount must be $.5 or more' });
-  //   }
-
   // Error thrown by throw new Error
   res.status(res.statusCode || 500).json({
     message: err.message,
