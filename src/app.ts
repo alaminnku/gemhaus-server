@@ -13,6 +13,7 @@ import Article from './routes/article';
 import Property from './routes/property';
 import Braintree from './routes/braintree';
 import Mail from './routes/mail';
+import Subscriber from './routes/subscriber';
 
 // Config
 dotenv.config();
@@ -49,6 +50,7 @@ app.use('/articles', Article);
 app.use('/properties', Property);
 app.use('/braintree', Braintree);
 app.use('/mail', Mail);
+app.use('/subscribers', Subscriber);
 
 // Error middleware - Put after all main routes
 app.use(error);
