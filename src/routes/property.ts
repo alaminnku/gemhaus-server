@@ -167,6 +167,10 @@ router.post('/:id/book', upload.none(), async (req, res) => {
 
   try {
     const property = await Property.findById(id).lean().orFail();
+    if (numberOfGuests > property.guests) {
+      res.status(400);
+      throw new Error(`Maximum ${property.guests} guests allowed`);
+    }
     const calendar: HostawayCalendar = await fetchHostawayData(
       `/listings/${property.hostawayId}/calendar`
     );
