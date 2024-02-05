@@ -81,6 +81,7 @@ const propertySchema = new Schema<PropertySchema>(
         },
       },
     ],
+    availableDates: [],
   },
   {
     timestamps: true,

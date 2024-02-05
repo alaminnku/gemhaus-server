@@ -14,6 +14,7 @@ import Property from './routes/property';
 import Braintree from './routes/braintree';
 import Mail from './routes/mail';
 import Subscriber from './routes/subscriber';
+import { scheduler } from './lib/utils';
 
 // Config
 dotenv.config();
@@ -51,6 +52,9 @@ app.use('/properties', Property);
 app.use('/braintree', Braintree);
 app.use('/mail', Mail);
 app.use('/subscribers', Subscriber);
+
+// Run scheduled tasks
+scheduler();
 
 // Error middleware - Put after all main routes
 app.use(error);

@@ -37,6 +37,7 @@ export type PropertySchema = {
   insuranceFee: number;
   cleaningFee: number;
   salesTaxPercent: number;
+  availableDates: string[];
   serviceFeePercent: number;
   lodgingTaxPercent: number;
   offerings: { name: string; icon: string }[];

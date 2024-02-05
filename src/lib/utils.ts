@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto';
 import multer, { MulterError } from 'multer';
+import { updateAvailableDates } from './jobs';
 
 type FetchHostawayDataOptions = {
   body?: string;
@@ -77,3 +78,10 @@ export async function fetchHostawayData(
 // Get ISO date
 export const getISODate = (input: Date | string) =>
   new Date(input).toISOString().split('T')[0];
+
+// Scheduler function
+export function scheduler() {
+  setInterval(async () => {
+    await updateAvailableDates();
+  }, 1000 * 60 * 5);
+}
