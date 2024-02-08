@@ -7,8 +7,8 @@ const router = Router();
 
 router.post('/query', upload.none(), async (req, res) => {
   // Destructure and validate data
-  const { name, email, subject, message } = req.body;
-  if (!name || !email || !subject || !message) {
+  const { name, email, subject, message, services } = req.body;
+  if (!name || !email || !message) {
     console.log(requiredFields);
     res.status(400);
     throw new Error(requiredFields);
@@ -22,7 +22,8 @@ router.post('/query', upload.none(), async (req, res) => {
       html: `
             <p>Name: ${name}</p>
             <p>Email: ${email}</p>
-            <p>Subject: ${subject}</p>
+            <p>Subject: ${subject || 'N/A'}</p>
+            <p>Services: ${services || 'N/A'}</p>
             <p>Message: ${message}</p>
         `,
     };
