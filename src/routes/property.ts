@@ -26,6 +26,8 @@ router.post('/', upload.array('files'), async (req, res) => {
     bedrooms,
     bathrooms,
     offerings,
+    latitude,
+    longitude,
     cleaningFee,
     description,
     isFeatured,
@@ -43,6 +45,8 @@ router.post('/', upload.array('files'), async (req, res) => {
     !guests ||
     !rating ||
     !bedrooms ||
+    !latitude ||
+    !longitude ||
     !bathrooms ||
     !cleaningFee ||
     !description ||
@@ -77,6 +81,8 @@ router.post('/', upload.array('files'), async (req, res) => {
       images,
       bedrooms,
       bathrooms,
+      latitude,
+      longitude,
       cleaningFee,
       description,
       insuranceFee,

@@ -52,6 +52,14 @@ const propertySchema = new Schema<PropertySchema>(
       type: Number,
       required: [true, 'Please provide cleaning fee'],
     },
+    latitude: {
+      type: Number,
+      required: [true, 'Please provide property latitude'],
+    },
+    longitude: {
+      type: Number,
+      required: [true, 'Please provide property longitude'],
+    },
     isFeatured: {
       type: Boolean,
     },

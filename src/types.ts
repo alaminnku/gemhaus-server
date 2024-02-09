@@ -31,6 +31,8 @@ export type PropertySchema = {
   rating: number;
   images: string[];
   bedrooms: number;
+  latitude: number;
+  longitude: number;
   bathrooms: number;
   isFeatured: boolean;
   description: string;
