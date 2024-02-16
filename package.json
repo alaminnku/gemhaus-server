@@ -5,8 +5,7 @@
     "start": "node ./dist/app.js",
     "postinstall": "npm run tsc",
     "migrate-mongo": "migrate-mongo",
-    "dev": "nodemon --files ./src/app.ts",
-    "heroku-postbuild": "npm run migrate-mongo up"
+    "dev": "nodemon --files ./src/app.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",
