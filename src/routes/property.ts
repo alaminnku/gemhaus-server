@@ -54,13 +54,13 @@ router.post('/', upload.array('files'), async (req, res) => {
     !serviceFeePercent ||
     !salesTaxPercent ||
     !lodgingTaxPercent ||
-    files.length === 0 ||
     offerings.length === 0
   ) {
     console.log(requiredFields);
     res.status(400);
     throw new Error(requiredFields);
   }
+  if (files.length < 5) throw new Error('At least five images are required');
 
   // Upload images to S3
   let images = [];
