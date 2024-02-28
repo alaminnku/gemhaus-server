@@ -54,28 +54,14 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
     });
   }
 
-  // JWT token is expired
-  if (err.name === 'TokenExpiredError') {
-    return res
-      .status(500)
-      .json({ message: 'Token expired, please request the service again' });
-  }
-
-  // JWT token is invalid
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(500).json({ message: 'Please provide a valid token' });
-  }
-
-  // Password salt is invalid
+  // Invalid salt
   if (err.message.includes('Invalid salt')) {
     return res.status(500).json({ message: 'Please provide a valid salt' });
   }
 
-  // Stripe signature verification error
-  if (err.message.includes('StripeSignatureVerificationError')) {
-    return res
-      .status(400)
-      .json({ message: 'Stripe signature verification failed' });
+  // No password in db user
+  if (err.message.includes('hash arguments required')) {
+    return res.status(500).json({ message: 'Invalid credentials' });
   }
 
   // Error thrown by throw new Error

@@ -7,14 +7,11 @@ declare global {
 }
 
 export type UserSchema = {
-  name: {
-    first: string;
-    last: string;
-  };
+  name: string;
   email: string;
-  role: string;
+  image?: string;
   password: string;
-  status: string;
+  role: 'ADMIN' | 'USER';
 };
 
 export type ArticleSchema = {

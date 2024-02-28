@@ -4,16 +4,9 @@ import { Schema, model } from 'mongoose';
 const userSchema = new Schema<UserSchema>(
   {
     name: {
-      first: {
-        type: String,
-        trim: true,
-        required: [true, 'Please provide first name'],
-      },
-      last: {
-        type: String,
-        trim: true,
-        required: [true, 'Please provide last name'],
-      },
+      type: String,
+      trim: true,
+      required: [true, 'Please provide a name'],
     },
     email: {
       type: String,
@@ -22,20 +15,19 @@ const userSchema = new Schema<UserSchema>(
       lowercase: true,
       required: [true, 'Please provide an email'],
     },
+    image: {
+      type: String,
+      trim: true,
+    },
     role: {
       type: String,
-      enum: ['ADMIN'],
+      enum: ['ADMIN', 'USER'],
       required: [true, 'Please provide a role'],
     },
     password: {
       type: String,
       trim: true,
       required: [true, 'Please provide a password'],
-    },
-    status: {
-      type: String,
-      enum: ['ARCHIVED', 'ACTIVE'],
-      required: [true, 'Please provide a status'],
     },
   },
   {

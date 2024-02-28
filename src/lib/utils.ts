@@ -99,3 +99,8 @@ export function formatDate(input: string | Date) {
 
   return `${year}-${month}-${day}`;
 }
+
+export const isValidEmail = (email: string) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};

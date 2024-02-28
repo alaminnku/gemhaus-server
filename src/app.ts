@@ -15,6 +15,7 @@ import Braintree from './routes/braintree';
 import Mail from './routes/mail';
 import Subscriber from './routes/subscriber';
 import { scheduler } from './lib/utils';
+import User from './routes/user';
 
 // Config
 dotenv.config();
@@ -52,6 +53,7 @@ app.use('/properties', Property);
 app.use('/braintree', Braintree);
 app.use('/mail', Mail);
 app.use('/subscribers', Subscriber);
+app.use('/user', User);
 
 // Run scheduled tasks
 scheduler();
