@@ -16,6 +16,7 @@ export type UserSchema = {
   qrCodeLink?: string;
   password?: string;
   properties?: UserProperty[];
+  transactions?: UserTransaction[];
   role: 'ADMIN' | 'USER' | 'AGENT';
 };
 
@@ -27,6 +28,11 @@ export type UserProperty = {
   price: number;
   images: string[];
   description: string;
+};
+
+export type UserTransaction = {
+  address: string;
+  type: 'sold' | 'available';
 };
 
 export type ArticleSchema = {

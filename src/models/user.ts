@@ -1,4 +1,4 @@
-import { UserProperty, UserSchema } from '../types';
+import { UserProperty, UserSchema, UserTransaction } from '../types';
 import { Schema, model } from 'mongoose';
 
 const userSchema = new Schema<UserSchema>(
@@ -91,6 +91,20 @@ const userSchema = new Schema<UserSchema>(
         },
         { timestamps: true }
       ),
+    ],
+    transactions: [
+      new Schema<UserTransaction>({
+        address: {
+          type: String,
+          trim: true,
+          required: [true, 'Please provide transaction address'],
+        },
+        type: {
+          type: String,
+          enum: ['sold', 'available'],
+          required: [true, 'Please provide transaction address'],
+        },
+      }),
     ],
   },
   {

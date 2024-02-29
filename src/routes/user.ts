@@ -168,7 +168,7 @@ router.get('/agent/:id', async (req, res) => {
   }
 });
 
-// Add agent property
+// Add agent's property
 router.post('/agent/:id/property', upload.array('files'), async (req, res) => {
   const { id } = req.params;
   const files = req.files as Express.Multer.File[];
@@ -196,29 +196,45 @@ router.post('/agent/:id/property', upload.array('files'), async (req, res) => {
   }
 
   try {
-    await User.findByIdAndUpdate(
-      id,
-      {
-        $push: {
-          properties: {
-            address,
-            city,
-            state,
-            price,
-            images,
-            description,
-            isFeatured: isFeatured ? true : false,
-          },
+    await User.findByIdAndUpdate(id, {
+      $push: {
+        properties: {
+          address,
+          city,
+          state,
+          price,
+          images,
+          description,
+          isFeatured: isFeatured ? true : false,
         },
       },
-      {
-        returnDocument: 'after',
-      }
-    )
-      .select('-__v -updatedAt -createdAt')
-      .lean()
-      .orFail();
+    }).orFail();
     res.status(201).json({ message: 'Property added' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Add agent's transaction
+router.post('/agent/:id/transaction', upload.none(), async (req, res) => {
+  const { id } = req.params;
+  const { address, type } = req.body;
+
+  if (!type || !address) {
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+  if (type !== 'sold' || type !== 'available') {
+    res.status(400);
+    throw new Error('Please provide a valid type');
+  }
+
+  try {
+    await User.findByIdAndUpdate(id, {
+      $push: { transactions: { address, type } },
+    }).orFail();
+    res.status(201).json({ message: 'Transaction added' });
   } catch (err) {
     console.log(err);
     throw err;
