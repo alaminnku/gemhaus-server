@@ -7,6 +7,7 @@ import { uploadImage } from '../config/s3';
 
 const router = Router();
 
+// Sign up user
 router.post('/sign-up', upload.none(), async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -38,6 +39,7 @@ router.post('/sign-up', upload.none(), async (req, res) => {
   }
 });
 
+// Authorize user
 router.post('/authorize', upload.none(), async (req, res) => {
   const { email, password } = req.body;
 
@@ -72,6 +74,7 @@ router.post('/authorize', upload.none(), async (req, res) => {
   }
 });
 
+// Create/update user
 router.post('/upsert', upload.none(), async (req, res) => {
   const { name, email, image } = req.body;
 
@@ -98,6 +101,7 @@ router.post('/upsert', upload.none(), async (req, res) => {
   }
 });
 
+// Create an agent
 router.post('/agent', upload.single('file'), async (req, res) => {
   const file = req.file;
   const { name, email, phone, address, qrCodeLink, bio } = req.body;
@@ -135,6 +139,7 @@ router.post('/agent', upload.single('file'), async (req, res) => {
   }
 });
 
+// Get all agents
 router.get('/agent', async (req, res) => {
   try {
     const agents = await User.find({ role: 'AGENT' })
