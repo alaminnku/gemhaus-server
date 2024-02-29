@@ -98,7 +98,7 @@ router.post('/upsert', upload.none(), async (req, res) => {
   }
 });
 
-router.post('/add-agent', upload.single('file'), async (req, res) => {
+router.post('/agent', upload.single('file'), async (req, res) => {
   const file = req.file;
   const { name, email, phone, address, qrCodeLink, bio } = req.body;
 
@@ -129,6 +129,19 @@ router.post('/add-agent', upload.single('file'), async (req, res) => {
     const agent = response.toObject();
     deleteFields(agent, ['createdAt']);
     res.status(201).json(agent);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+router.get('/agent', async (req, res) => {
+  try {
+    const agents = await User.find({ role: 'AGENT' })
+      .select('-createdAt -updatedAt -__v')
+      .lean()
+      .orFail();
+    res.status(200).json(agents);
   } catch (err) {
     console.log(err);
     throw err;
