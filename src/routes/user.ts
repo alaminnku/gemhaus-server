@@ -3,6 +3,7 @@ import { Router } from 'express';
 import User from '../models/user';
 import { deleteFields, isValidEmail, upload } from '../lib/utils';
 import { invalidEmail, requiredFields } from '../lib/messages';
+import { uploadImage } from '../config/s3';
 
 const router = Router();
 
@@ -52,7 +53,7 @@ router.post('/authorize', upload.none(), async (req, res) => {
   try {
     // Get the user and match password
     const user = await User.findOne({ email }).lean();
-    if (!user) {
+    if (!user || !user.password) {
       res.status(400);
       throw new Error('Invalid credentials');
     }
@@ -74,7 +75,7 @@ router.post('/authorize', upload.none(), async (req, res) => {
 router.post('/upsert', upload.none(), async (req, res) => {
   const { name, email, image } = req.body;
 
-  if (!name || !email || !image) {
+  if (!name || !email) {
     res.status(400);
     throw new Error(requiredFields);
   }
@@ -91,6 +92,43 @@ router.post('/upsert', upload.none(), async (req, res) => {
     );
 
     res.status(201).json({ message: 'User upsert successful' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+router.post('/add-agent', upload.single('file'), async (req, res) => {
+  const file = req.file;
+  const { name, email, phone, address, qrCodeLink, bio } = req.body;
+
+  if (!file || !name || !email || !phone || !address || !qrCodeLink || !bio) {
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+  if (!isValidEmail(email)) {
+    res.status(400);
+    throw new Error(invalidEmail);
+  }
+
+  // Upload image to S3
+  const { buffer, mimetype } = file;
+  const image = await uploadImage(res, buffer, mimetype);
+
+  try {
+    const response = await User.create({
+      name,
+      email,
+      phone,
+      address,
+      qrCodeLink,
+      bio,
+      image,
+      role: 'AGENT',
+    });
+    const agent = response.toObject();
+    deleteFields(agent, ['createdAt']);
+    res.status(201).json(agent);
   } catch (err) {
     console.log(err);
     throw err;

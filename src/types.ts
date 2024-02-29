@@ -10,8 +10,12 @@ export type UserSchema = {
   name: string;
   email: string;
   image?: string;
-  password: string;
-  role: 'ADMIN' | 'USER';
+  phone?: string;
+  bio?: string;
+  address?: string;
+  qrCodeLink?: string;
+  password?: string;
+  role: 'ADMIN' | 'USER' | 'AGENT';
 };
 
 export type ArticleSchema = {

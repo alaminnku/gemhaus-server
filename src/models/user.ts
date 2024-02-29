@@ -15,20 +15,40 @@ const userSchema = new Schema<UserSchema>(
       lowercase: true,
       required: [true, 'Please provide an email'],
     },
-    image: {
-      type: String,
-      default: null,
-      required: false,
-    },
     role: {
       type: String,
-      enum: ['ADMIN', 'USER'],
+      enum: ['ADMIN', 'USER', 'AGENT'],
       required: [true, 'Please provide a role'],
     },
     password: {
       type: String,
       trim: true,
-      required: [true, 'Please provide a password'],
+      required: false,
+    },
+    image: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    phone: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    address: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    bio: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+    qrCodeLink: {
+      type: String,
+      trim: true,
+      required: false,
     },
   },
   {

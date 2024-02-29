@@ -53,7 +53,7 @@ app.use('/properties', Property);
 app.use('/braintree', Braintree);
 app.use('/mail', Mail);
 app.use('/subscribers', Subscriber);
-app.use('/user', User);
+app.use('/users', User);
 
 // Run scheduled tasks
 scheduler();
