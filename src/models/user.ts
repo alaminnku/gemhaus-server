@@ -1,4 +1,4 @@
-import { UserSchema } from '../types';
+import { UserProperty, UserSchema } from '../types';
 import { Schema, model } from 'mongoose';
 
 const userSchema = new Schema<UserSchema>(
@@ -50,6 +50,48 @@ const userSchema = new Schema<UserSchema>(
       trim: true,
       required: false,
     },
+    properties: [
+      new Schema<UserProperty>(
+        {
+          address: {
+            type: String,
+            trim: true,
+            required: [true, 'Please provide property address'],
+          },
+          city: {
+            type: String,
+            trim: true,
+            required: [true, 'Please provide property city'],
+          },
+          state: {
+            type: String,
+            trim: true,
+            required: [true, 'Please provide property state'],
+          },
+          price: {
+            type: Number,
+            required: [true, 'Please provide property price'],
+          },
+          isFeatured: {
+            type: Boolean,
+            required: [true, 'Please provide isFeatured'],
+          },
+          images: [
+            {
+              type: String,
+              trim: true,
+              required: [true, 'Please provide property images'],
+            },
+          ],
+          description: {
+            type: String,
+            trim: true,
+            required: [true, 'Please provide property image'],
+          },
+        },
+        { timestamps: true }
+      ),
+    ],
   },
   {
     timestamps: true,

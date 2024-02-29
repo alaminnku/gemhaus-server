@@ -143,10 +143,82 @@ router.post('/agent', upload.single('file'), async (req, res) => {
 router.get('/agent', async (req, res) => {
   try {
     const agents = await User.find({ role: 'AGENT' })
-      .select('-createdAt -updatedAt -__v')
+      .select('name email phone image')
       .lean()
       .orFail();
     res.status(200).json(agents);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Get an agent
+router.get('/agent/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const agent = await User.findById(id)
+      .select('-createdAt -updatedAt -__v')
+      .lean()
+      .orFail();
+    res.status(200).json(agent);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Add agent property
+router.post('/agent/:id/property', upload.array('files'), async (req, res) => {
+  const { id } = req.params;
+  const files = req.files as Express.Multer.File[];
+  const { address, city, state, price, isFeatured, description } = req.body;
+
+  if (
+    !address ||
+    !city ||
+    !state ||
+    !price ||
+    !isFeatured ||
+    !description ||
+    files.length === 0
+  ) {
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+
+  // Upload images to S3
+  let images = [];
+  for (let i = 0; i < files.length; i++) {
+    const { buffer, mimetype } = files[i];
+    const image = await uploadImage(res, buffer, mimetype);
+    images.push(image);
+  }
+
+  try {
+    await User.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          properties: {
+            address,
+            city,
+            state,
+            price,
+            images,
+            description,
+            isFeatured: isFeatured ? true : false,
+          },
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    )
+      .select('-__v -updatedAt -createdAt')
+      .lean()
+      .orFail();
+    res.status(201).json({ message: 'Property added' });
   } catch (err) {
     console.log(err);
     throw err;

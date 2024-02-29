@@ -15,7 +15,18 @@ export type UserSchema = {
   address?: string;
   qrCodeLink?: string;
   password?: string;
+  properties?: UserProperty[];
   role: 'ADMIN' | 'USER' | 'AGENT';
+};
+
+export type UserProperty = {
+  isFeatured: boolean;
+  address: string;
+  city: string;
+  state: string;
+  price: number;
+  images: string[];
+  description: string;
 };
 
 export type ArticleSchema = {
