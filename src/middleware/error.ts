@@ -36,13 +36,11 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
 
   // Mongoose error
   if (err.name === 'DocumentNotFoundError') {
-    const key = Object.keys(err.query)[0];
-    const value = Object.values(err.query)[0];
     const model = err.message
       .split(' ')
       [err.message.split(' ').length - 1].replaceAll('"', '');
     return res.status(500).json({
-      message: `${model} with ${key} ${value} is not found`,
+      message: `${model} not found`,
     });
   }
 
@@ -61,7 +59,7 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
 
   // No password in db user
   if (err.message.includes('hash arguments required')) {
-    return res.status(500).json({ message: 'Invalid credentials' });
+    return res.status(400).json({ message: 'Invalid credentials' });
   }
 
   // Error thrown by throw new Error

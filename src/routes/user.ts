@@ -51,7 +51,11 @@ router.post('/authorize', upload.none(), async (req, res) => {
 
   try {
     // Get the user and match password
-    const user = await User.findOne({ email }).lean().orFail();
+    const user = await User.findOne({ email }).lean();
+    if (!user) {
+      res.status(400);
+      throw new Error('Invalid credentials');
+    }
     const correctPassword = await bcrypt.compare(password, user.password);
 
     if (!user || !correctPassword) {
