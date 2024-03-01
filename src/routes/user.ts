@@ -61,7 +61,7 @@ router.post('/authorize', upload.none(), async (req, res) => {
     }
     const correctPassword = await bcrypt.compare(password, user.password);
 
-    if (!user || !correctPassword) {
+    if (!correctPassword) {
       res.status(400);
       throw new Error('Invalid credentials');
     }
@@ -88,13 +88,18 @@ router.post('/upsert', upload.none(), async (req, res) => {
   }
 
   try {
-    await User.updateOne(
-      { email },
-      { name, email, image, role: 'USER' },
-      { upsert: true }
-    );
+    const user = await User.findOne({ email });
 
-    res.status(201).json({ message: 'User upsert successful' });
+    if (!user) {
+      await User.create({ name, email, image, role: 'USER' });
+      return res.status(201).json({ message: 'User created' });
+    }
+
+    user.name = name;
+    user.image = image;
+    await user.save();
+
+    res.status(200).json({ message: 'User updated' });
   } catch (err) {
     console.log(err);
     throw err;
@@ -225,7 +230,7 @@ router.post('/agent/:id/transaction', upload.none(), async (req, res) => {
     res.status(400);
     throw new Error(requiredFields);
   }
-  if (type !== 'sold' || type !== 'available') {
+  if (type !== 'sold' && type !== 'available') {
     res.status(400);
     throw new Error('Please provide a valid type');
   }
