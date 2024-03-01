@@ -1,5 +1,4 @@
 import User from '../models/user';
-import { JWT, decode } from 'next-auth/jwt';
 import { Request, Response, NextFunction } from 'express';
 import { invalidCredentials } from '../lib/messages';
 
@@ -8,29 +7,22 @@ export default async function handler(
   res: Response,
   next: NextFunction
 ) {
-  console.log(req.headers);
-  if (!req.headers.cookie) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
     console.log(invalidCredentials);
     res.status(401);
     throw new Error(invalidCredentials);
   }
 
-  const token = req.headers.cookie.split('next-auth.session-token=')[1];
-  console.log(token);
-  if (!token) {
+  const id = authHeader.replace('Bearer ', '');
+  if (!id) {
     console.log(invalidCredentials);
     res.status(401);
     throw new Error(invalidCredentials);
   }
 
   try {
-    const decoded = (await decode({
-      token,
-      secret: process.env.NEXTAUTH_SECRET as string,
-    })) as JWT;
-    console.log(decoded);
-
-    const user = await User.findById(decoded.id)
+    const user = await User.findById(id)
       .select('-__v -password -updatedAt -createdAt')
       .lean();
 
