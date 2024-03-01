@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requiredFields } from '../lib/messages';
+import { requiredFields, unauthorized } from '../lib/messages';
 import {
   deleteFields,
   fetchHostawayData,
@@ -11,11 +11,17 @@ import Property from '../models/property';
 import { gateway } from '../config/braintree';
 import { HostawayCalendar } from '../types';
 import { propertyOfferings } from '../data/offerings';
+import auth from '../middleware/auth';
 
 const router = Router();
 
 // Create a property
-router.post('/', upload.array('files'), async (req, res) => {
+router.post('/', upload.array('files'), auth, async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
   const files = req.files as Express.Multer.File[];
   const {
     hostawayId,

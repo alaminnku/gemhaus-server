@@ -2,8 +2,9 @@ import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import User from '../models/user';
 import { deleteFields, isValidEmail, upload } from '../lib/utils';
-import { invalidEmail, requiredFields } from '../lib/messages';
+import { invalidEmail, requiredFields, unauthorized } from '../lib/messages';
 import { uploadImage } from '../config/s3';
+import auth from '../middleware/auth';
 
 const router = Router();
 
@@ -108,7 +109,12 @@ router.post('/upsert/:email', upload.none(), async (req, res) => {
 });
 
 // Create an agent
-router.post('/agent', upload.single('file'), async (req, res) => {
+router.post('/agent', auth, upload.single('file'), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
   const file = req.file;
   const { name, email, phone, address, qrCodeLink, bio } = req.body;
 
@@ -174,56 +180,71 @@ router.get('/agent/:id', async (req, res) => {
   }
 });
 
-// Add agent's property
-router.post('/agent/:id/property', upload.array('files'), async (req, res) => {
-  const { id } = req.params;
-  const files = req.files as Express.Multer.File[];
-  const { address, city, state, price, isFeatured, description } = req.body;
+// Create agent's property
+router.post(
+  '/agent/:id/property',
+  auth,
+  upload.array('files'),
+  async (req, res) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+      res.status(403);
+      throw new Error(unauthorized);
+    }
 
-  if (
-    !address ||
-    !city ||
-    !state ||
-    !price ||
-    !isFeatured ||
-    !description ||
-    files.length === 0
-  ) {
-    res.status(400);
-    throw new Error(requiredFields);
-  }
+    const { id } = req.params;
+    const files = req.files as Express.Multer.File[];
+    const { address, city, state, price, isFeatured, description } = req.body;
 
-  // Upload images to S3
-  let images = [];
-  for (let i = 0; i < files.length; i++) {
-    const { buffer, mimetype } = files[i];
-    const image = await uploadImage(res, buffer, mimetype);
-    images.push(image);
-  }
+    if (
+      !address ||
+      !city ||
+      !state ||
+      !price ||
+      !isFeatured ||
+      !description ||
+      files.length === 0
+    ) {
+      res.status(400);
+      throw new Error(requiredFields);
+    }
 
-  try {
-    await User.findByIdAndUpdate(id, {
-      $push: {
-        properties: {
-          address,
-          city,
-          state,
-          price,
-          images,
-          description,
-          isFeatured: isFeatured ? true : false,
+    // Upload images to S3
+    let images = [];
+    for (let i = 0; i < files.length; i++) {
+      const { buffer, mimetype } = files[i];
+      const image = await uploadImage(res, buffer, mimetype);
+      images.push(image);
+    }
+
+    try {
+      await User.findByIdAndUpdate(id, {
+        $push: {
+          properties: {
+            address,
+            city,
+            state,
+            price,
+            images,
+            description,
+            isFeatured: isFeatured ? true : false,
+          },
         },
-      },
-    }).orFail();
-    res.status(201).json({ message: 'Property added' });
-  } catch (err) {
-    console.log(err);
-    throw err;
+      }).orFail();
+      res.status(201).json({ message: 'Property added' });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
-});
+);
 
-// Add agent's transaction
-router.post('/agent/:id/transaction', upload.none(), async (req, res) => {
+// Create agent's transaction
+router.post('/agent/:id/transaction', auth, upload.none(), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
   const { id } = req.params;
   const { address, type } = req.body;
 

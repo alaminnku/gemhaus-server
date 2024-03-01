@@ -1,5 +1,5 @@
 import User from '../models/user';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JWT, decode } from 'next-auth/jwt';
 import { Request, Response, NextFunction } from 'express';
 
 export default async function handler(
@@ -7,13 +7,13 @@ export default async function handler(
   res: Response,
   next: NextFunction
 ) {
-  if (!req.cookies) {
+  if (!req.headers.cookie) {
     console.log('Not authorized');
     res.status(401);
     throw new Error('Not authorized');
   }
 
-  const { token } = req.cookies;
+  const token = req.headers.cookie.split('next-auth.session-token=')[1];
   if (!token) {
     console.log('Not authorized');
     res.status(401);
@@ -21,19 +21,18 @@ export default async function handler(
   }
 
   try {
-    const decoded = jwt.verify(
+    const decoded = (await decode({
       token,
-      process.env.JWT_SECRET as string
-    ) as JwtPayload;
+      secret: process.env.NEXTAUTH_SECRET as string,
+    })) as JWT;
 
-    const user = await User.findById(decoded._id)
+    const user = await User.findById(decoded.id)
       .select('-__v -password -updatedAt -createdAt')
-      .lean();
+      .lean()
+      .orFail();
 
-    if (user) {
-      req.user = user;
-      next();
-    }
+    req.user = user;
+    next();
   } catch (err) {
     console.log(err);
     throw err;

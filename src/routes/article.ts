@@ -2,12 +2,18 @@ import { Router } from 'express';
 import Article from '../models/article';
 import { deleteFields, upload } from '../lib/utils';
 import { uploadImage } from '../config/s3';
-import { requiredFields } from '../lib/messages';
+import { requiredFields, unauthorized } from '../lib/messages';
+import auth from '../middleware/auth';
 
 const router = Router();
 
 // Create an article
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', auth, upload.single('file'), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
   const file = req.file;
   const { title, content } = req.body;
 
