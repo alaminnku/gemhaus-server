@@ -75,8 +75,9 @@ router.post('/authorize', upload.none(), async (req, res) => {
 });
 
 // Create/update user
-router.post('/upsert', upload.none(), async (req, res) => {
-  const { name, email, image } = req.body;
+router.post('/upsert/:email', upload.none(), async (req, res) => {
+  const { email } = req.params;
+  const { name, image } = req.body;
 
   if (!name || !email) {
     res.status(400);
@@ -240,6 +241,19 @@ router.post('/agent/:id/transaction', upload.none(), async (req, res) => {
       $push: { transactions: { address, type } },
     }).orFail();
     res.status(201).json({ message: 'Transaction added' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Get a user
+router.get('/:id', upload.none(), async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).lean().orFail();
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
     throw err;
