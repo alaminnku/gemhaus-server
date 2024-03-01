@@ -38,9 +38,10 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
   if (err.name === 'DocumentNotFoundError') {
     const model = err.message
       .split(' ')
-      [err.message.split(' ').length - 1].replaceAll('"', '');
+      [err.message.split(' ').length - 1].replaceAll('"', '')
+      .toLowerCase();
     return res.status(500).json({
-      message: `${model} not found`,
+      message: `No ${model} found`,
     });
   }
 
