@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { requiredFields } from '../lib/messages';
+import { invalidEmail, requiredFields } from '../lib/messages';
 import mail, { MailDataRequired } from '@sendgrid/mail';
-import { upload } from '../lib/utils';
+import { isValidEmail, upload } from '../lib/utils';
+import User from '../models/user';
 
 const router = Router();
 
@@ -75,6 +76,39 @@ router.post('/property-evaluation', upload.none(), async (req, res) => {
             <p>Does that HOA community allows STR/LTR?: ${
               doesAllowsStrLtr ? 'Yes' : 'No'
             }</p>
+        `,
+    };
+    await mail.send(template as MailDataRequired);
+    res.status(200).json({ message: 'Message sent successfully' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+router.post('/agent/:id', upload.none(), async (req, res) => {
+  const { id } = req.params;
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+  if (!isValidEmail(email)) {
+    res.status(400);
+    throw new Error(invalidEmail);
+  }
+
+  try {
+    const agent = await User.findById(id).lean().orFail();
+    const template = {
+      to: agent.email,
+      from: process.env.SENDER_EMAIL,
+      subject: `Message from ${name}`,
+      html: `
+            <p>Name: ${name}</p>
+            <p>Email: ${email}</p>
+            <p>Message: ${message}</p>
         `,
     };
     await mail.send(template as MailDataRequired);
