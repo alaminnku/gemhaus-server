@@ -1,6 +1,7 @@
 import User from '../models/user';
 import { JWT, decode } from 'next-auth/jwt';
 import { Request, Response, NextFunction } from 'express';
+import { invalidCredentials } from '../lib/messages';
 
 export default async function handler(
   req: Request,
@@ -8,16 +9,16 @@ export default async function handler(
   next: NextFunction
 ) {
   if (!req.headers.cookie) {
-    console.log('Not authorized');
+    console.log(invalidCredentials);
     res.status(401);
-    throw new Error('Not authorized');
+    throw new Error(invalidCredentials);
   }
 
   const token = req.headers.cookie.split('next-auth.session-token=')[1];
   if (!token) {
-    console.log('Not authorized');
+    console.log(invalidCredentials);
     res.status(401);
-    throw new Error('Not authorized');
+    throw new Error(invalidCredentials);
   }
 
   try {
@@ -28,8 +29,13 @@ export default async function handler(
 
     const user = await User.findById(decoded.id)
       .select('-__v -password -updatedAt -createdAt')
-      .lean()
-      .orFail();
+      .lean();
+
+    if (!user) {
+      console.log(invalidCredentials);
+      res.status(401);
+      throw new Error(invalidCredentials);
+    }
 
     req.user = user;
     next();

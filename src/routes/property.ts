@@ -16,8 +16,9 @@ import auth from '../middleware/auth';
 const router = Router();
 
 // Create a property
-router.post('/', upload.array('files'), auth, async (req, res) => {
+router.post('/', auth, upload.array('files'), async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
     res.status(403);
     throw new Error(unauthorized);
   }

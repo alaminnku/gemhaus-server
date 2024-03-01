@@ -111,6 +111,7 @@ router.post('/upsert/:email', upload.none(), async (req, res) => {
 // Create an agent
 router.post('/agent', auth, upload.single('file'), async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
     res.status(403);
     throw new Error(unauthorized);
   }
@@ -241,6 +242,7 @@ router.post(
 // Create agent's transaction
 router.post('/agent/:id/transaction', auth, upload.none(), async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
     res.status(403);
     throw new Error(unauthorized);
   }

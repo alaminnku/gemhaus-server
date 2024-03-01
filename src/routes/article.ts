@@ -10,6 +10,7 @@ const router = Router();
 // Create an article
 router.post('/', auth, upload.single('file'), async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
     res.status(403);
     throw new Error(unauthorized);
   }
