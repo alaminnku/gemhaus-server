@@ -7,7 +7,7 @@ export default async function handler(
   res: Response,
   next: NextFunction
 ) {
-  console.log({ cookies: req.cookies });
+  console.log(req.cookies['next-auth.session-token']);
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     console.log(invalidCredentials);
