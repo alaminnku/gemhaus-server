@@ -7,6 +7,7 @@ export default async function handler(
   res: Response,
   next: NextFunction
 ) {
+  console.log({ cookies: req.cookies });
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     console.log(invalidCredentials);
