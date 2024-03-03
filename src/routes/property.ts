@@ -67,7 +67,11 @@ router.post('/', auth, upload.array('files'), async (req, res) => {
     res.status(400);
     throw new Error(requiredFields);
   }
-  if (files.length < 5) throw new Error('At least five images are required');
+  if (files.length < 5) {
+    console.log('At least five images are required');
+    res.status(400);
+    throw new Error('At least five images are required');
+  }
 
   // Upload images to S3
   let images = [];
