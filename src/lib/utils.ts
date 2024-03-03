@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto';
 import multer, { MulterError } from 'multer';
 import { updateAvailableDates } from './jobs';
+import { sign } from 'jsonwebtoken';
 
 type FetchHostawayDataOptions = {
   body?: string;
@@ -104,3 +105,6 @@ export const isValidEmail = (email: string) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 };
+
+export const createAccessToken = (email: string) =>
+  sign({ email }, process.env.JWT_SECRET as string, { expiresIn: '30d' });

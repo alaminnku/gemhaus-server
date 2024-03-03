@@ -60,7 +60,12 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
 
   // No password in db user
   if (err.message.includes('hash arguments required')) {
-    return res.status(400).json({ message: 'Invalid credentials' });
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  // JWT error
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
 
   // Error thrown by throw new Error

@@ -1,6 +1,7 @@
 import User from '../models/user';
 import { Request, Response, NextFunction } from 'express';
 import { invalidCredentials } from '../lib/messages';
+import { verify, JwtPayload } from 'jsonwebtoken';
 
 export default async function handler(
   req: Request,
@@ -14,15 +15,20 @@ export default async function handler(
     throw new Error(invalidCredentials);
   }
 
-  const id = authHeader.replace('Bearer ', '');
-  if (!id) {
+  const accessToken = authHeader.replace('Bearer ', '');
+  if (!accessToken) {
     console.log(invalidCredentials);
     res.status(401);
     throw new Error(invalidCredentials);
   }
 
+  const decoded = verify(
+    accessToken,
+    process.env.JWT_SECRET as string
+  ) as JwtPayload;
+
   try {
-    const user = await User.findById(id)
+    const user = await User.findOne({ email: decoded.email })
       .select('-__v -password -updatedAt -createdAt')
       .lean();
 

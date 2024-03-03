@@ -1,7 +1,12 @@
 import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import User from '../models/user';
-import { deleteFields, isValidEmail, upload } from '../lib/utils';
+import {
+  createAccessToken,
+  deleteFields,
+  isValidEmail,
+  upload,
+} from '../lib/utils';
 import { invalidEmail, requiredFields, unauthorized } from '../lib/messages';
 import { uploadImage } from '../config/s3';
 import auth from '../middleware/auth';
@@ -68,7 +73,9 @@ router.post('/authorize', upload.none(), async (req, res) => {
     }
 
     deleteFields(user, ['password', 'createdAt']);
-    res.status(200).json(user);
+    res
+      .status(200)
+      .json({ ...user, accessToken: createAccessToken(user.email) });
   } catch (err) {
     console.log(err);
     throw err;
