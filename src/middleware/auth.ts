@@ -15,17 +15,14 @@ export default async function handler(
     throw new Error(invalidCredentials);
   }
 
-  const accessToken = authHeader.replace('Bearer ', '');
-  if (!accessToken) {
+  const token = authHeader.replace('Bearer ', '');
+  if (!token) {
     console.log(invalidCredentials);
     res.status(401);
     throw new Error(invalidCredentials);
   }
 
-  const decoded = verify(
-    accessToken,
-    process.env.JWT_SECRET as string
-  ) as JwtPayload;
+  const decoded = verify(token, process.env.JWT_SECRET as string) as JwtPayload;
 
   try {
     const user = await User.findOne({ email: decoded.email })

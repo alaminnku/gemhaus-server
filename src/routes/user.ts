@@ -3,7 +3,9 @@ import { Router } from 'express';
 import User from '../models/user';
 import {
   createAccessToken,
+  createRefreshToken,
   deleteFields,
+  createTokenExpiry,
   isValidEmail,
   upload,
 } from '../lib/utils';
@@ -45,8 +47,8 @@ router.post('/sign-up', upload.none(), async (req, res) => {
   }
 });
 
-// Authorize user
-router.post('/authorize', upload.none(), async (req, res) => {
+// Sign in user
+router.post('/sign-in', upload.none(), async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -73,9 +75,12 @@ router.post('/authorize', upload.none(), async (req, res) => {
     }
 
     deleteFields(user, ['password', 'createdAt']);
-    res
-      .status(200)
-      .json({ ...user, accessToken: createAccessToken(user.email) });
+    res.status(200).json({
+      ...user,
+      accessToken: createAccessToken(user.email),
+      refreshToken: createRefreshToken(user.email),
+      expiresIn: createTokenExpiry(),
+    });
   } catch (err) {
     console.log(err);
     throw err;

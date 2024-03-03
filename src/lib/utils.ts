@@ -107,4 +107,9 @@ export const isValidEmail = (email: string) => {
 };
 
 export const createAccessToken = (email: string) =>
+  sign({ email }, process.env.JWT_SECRET as string, { expiresIn: '20s' });
+
+export const createRefreshToken = (email: string) =>
   sign({ email }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
+
+export const createTokenExpiry = () => new Date().setTime(Date.now() + 20000);
