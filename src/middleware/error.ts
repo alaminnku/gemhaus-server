@@ -68,6 +68,10 @@ const handler: ErrorRequestHandler = (err, req, res, next) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
   // Error thrown by throw new Error
   res.status(res.statusCode || 500).json({
     message: err.message,
