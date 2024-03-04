@@ -209,6 +209,13 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       res.status(400);
       throw new Error('Invalid booking dates');
     }
+    // Check for minimum stays
+    const minimumStay = calendar[0].minimumStay;
+    if (bookingDates.length < minimumStay) {
+      console.log(`Minimum stay is ${minimumStay} nights`);
+      res.status(400);
+      throw new Error(`Minimum stay is ${minimumStay} nights`);
+    }
 
     // Nights' total
     const price = bookingDates.reduce((acc, curr) => acc + curr.price, 0);

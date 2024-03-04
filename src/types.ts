@@ -67,4 +67,5 @@ export type HostawayCalendar = {
   date: string;
   price: number;
   status: 'available';
+  minimumStay: number;
 }[];
