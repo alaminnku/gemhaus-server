@@ -185,21 +185,23 @@ router.post('/:id/book', upload.none(), async (req, res) => {
   try {
     const property = await Property.findById(id).lean().orFail();
     if (numberOfGuests > property.guests) {
+      console.log(`Maximum ${property.guests} guests allowed`);
       res.status(400);
       throw new Error(`Maximum ${property.guests} guests allowed`);
     }
+
     const calendar: HostawayCalendar = await fetchHostawayData(
       `/listings/${property.hostawayId}/calendar`
     );
 
     // All dates between check in and checkout
-    const dates: { [key: string]: boolean } = {};
+    const datesMap: { [key: string]: boolean } = {};
     const currDate = new Date(arrivalDate);
-    while (currDate <= new Date(departureDate)) {
-      dates[getISODate(currDate)] = true;
+    while (currDate < new Date(departureDate)) {
+      datesMap[getISODate(currDate)] = true;
       currDate.setDate(currDate.getDate() + 1);
     }
-    const bookingDates = calendar.filter((el) => dates[el.date]);
+    const bookingDates = calendar.filter((el) => datesMap[el.date]);
 
     // Check if all booking dates are available
     if (!bookingDates.every((el) => el.status === 'available')) {
