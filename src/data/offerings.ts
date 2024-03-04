@@ -20,6 +20,10 @@ export const propertyOfferings = [
     icon: '/vacation-rental/clock-icon.png',
   },
   {
+    name: '30 Min Stay',
+    icon: '/vacation-rental/clock-icon.png',
+  },
+  {
     name: 'Kitchen',
     icon: '/vacation-rental/kitchen-icon.png',
   },
