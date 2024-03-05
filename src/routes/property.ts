@@ -114,6 +114,107 @@ router.post('/', auth, upload.array('files'), async (req, res) => {
   }
 });
 
+// Update a property
+router.patch('/:id/update', auth, upload.array('files'), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+  const { id } = req.params;
+  const files = req.files as Express.Multer.File[];
+
+  const {
+    hostawayId,
+    name,
+    price,
+    guests,
+    rating,
+    images,
+    bedrooms,
+    bathrooms,
+    offerings,
+    latitude,
+    longitude,
+    cleaningFee,
+    description,
+    isFeatured,
+    insuranceFee,
+    serviceFeePercent,
+    salesTaxPercent,
+    lodgingTaxPercent,
+  } = req.body;
+
+  // Validate data
+  if (
+    !hostawayId ||
+    !name ||
+    !price ||
+    !guests ||
+    !rating ||
+    !bedrooms ||
+    !latitude ||
+    !longitude ||
+    !bathrooms ||
+    !cleaningFee ||
+    !description ||
+    !insuranceFee ||
+    !serviceFeePercent ||
+    !salesTaxPercent ||
+    !lodgingTaxPercent ||
+    offerings.length === 0
+  ) {
+    console.log(requiredFields);
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+
+  const existingImages = JSON.stringify(images);
+  if (existingImages.length + files.length < 5) {
+    console.log('At least five images are required');
+    res.status(400);
+    throw new Error('At least five images are required');
+  }
+
+  // Upload new images to S3
+  let updatedImages = [...existingImages];
+  for (let i = 0; i < files.length; i++) {
+    const { buffer, mimetype } = files[i];
+    const image = await uploadImage(res, buffer, mimetype);
+    updatedImages.push(image);
+  }
+
+  // Update property
+  try {
+    await Property.findByIdAndUpdate(id, {
+      hostawayId,
+      name,
+      price,
+      guests,
+      rating,
+      bedrooms,
+      bathrooms,
+      latitude,
+      longitude,
+      cleaningFee,
+      description,
+      insuranceFee,
+      salesTaxPercent,
+      lodgingTaxPercent,
+      serviceFeePercent,
+      images: updatedImages,
+      isFeatured: isFeatured ? true : false,
+      offerings: propertyOfferings.filter((offering) =>
+        offerings.includes(offering.name)
+      ),
+    });
+    res.status(200).json({ message: 'Property updated' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
 // Get all properties
 router.get('/', async (req, res) => {
   try {
