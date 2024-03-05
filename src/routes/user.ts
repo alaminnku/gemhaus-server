@@ -231,7 +231,7 @@ router.get('/agents/:id', async (req, res) => {
 
 // Create agent's property
 router.post(
-  '/agents/:id/property',
+  '/agents/:id/properties',
   auth,
   upload.array('files'),
   async (req, res) => {
@@ -253,6 +253,7 @@ router.post(
       !description ||
       files.length === 0
     ) {
+      console.log(requiredFields);
       res.status(400);
       throw new Error(requiredFields);
     }
@@ -287,9 +288,51 @@ router.post(
   }
 );
 
+// Update agent's property
+router.patch(
+  '/agents/:agentId/properties/:propertyId',
+  auth,
+  upload.none(),
+  async (req, res) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+      res.status(403);
+      throw new Error(unauthorized);
+    }
+
+    const { agentId, propertyId } = req.params;
+    const { address, city, state, price, isFeatured, description } = req.body;
+
+    if (!address || !city || !state || !price || !isFeatured || !description) {
+      console.log(requiredFields);
+      res.status(400);
+      throw new Error(requiredFields);
+    }
+
+    try {
+      await User.findOneAndUpdate(
+        { _id: agentId, 'properties._id': propertyId },
+        {
+          $set: {
+            'properties.$.address': address,
+            'properties.$.city': city,
+            'properties.$.state': state,
+            'properties.$.price': price,
+            'properties.$.description': description,
+            'properties.$.isFeatured': isFeatured ? true : false,
+          },
+        }
+      );
+      res.status(201).json({ message: 'Property updated' });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+);
+
 // Create agent's transaction
 router.post(
-  '/agents/:id/transaction',
+  '/agents/:id/transactions',
   auth,
   upload.none(),
   async (req, res) => {
