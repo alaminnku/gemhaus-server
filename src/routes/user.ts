@@ -121,7 +121,7 @@ router.post('/upsert/:email', upload.none(), async (req, res) => {
 });
 
 // Create an agent
-router.post('/agent', auth, upload.single('file'), async (req, res) => {
+router.post('/agents', auth, upload.single('file'), async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
     console.log(unauthorized);
     res.status(403);
@@ -164,8 +164,44 @@ router.post('/agent', auth, upload.single('file'), async (req, res) => {
   }
 });
 
+// Update an agent
+router.patch('/agents/:id/update', auth, upload.none(), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
+  const { id } = req.params;
+  const { name, email, phone, address, qrCodeLink, bio } = req.body;
+
+  if (!name || !email || !phone || !address || !qrCodeLink || !bio) {
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+  if (!isValidEmail(email)) {
+    res.status(400);
+    throw new Error(invalidEmail);
+  }
+
+  try {
+    await User.findByIdAndUpdate(id, {
+      bio,
+      name,
+      email,
+      phone,
+      address,
+      qrCodeLink,
+    });
+    res.status(201).json({ message: 'Agent updated' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
 // Get all agents
-router.get('/agent', async (req, res) => {
+router.get('/agents', async (req, res) => {
   try {
     const agents = await User.find({ role: 'AGENT' })
       .select('name email phone image')
@@ -179,7 +215,7 @@ router.get('/agent', async (req, res) => {
 });
 
 // Get an agent
-router.get('/agent/:id', async (req, res) => {
+router.get('/agents/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const agent = await User.findById(id)
@@ -195,7 +231,7 @@ router.get('/agent/:id', async (req, res) => {
 
 // Create agent's property
 router.post(
-  '/agent/:id/property',
+  '/agents/:id/property',
   auth,
   upload.array('files'),
   async (req, res) => {
@@ -252,35 +288,40 @@ router.post(
 );
 
 // Create agent's transaction
-router.post('/agent/:id/transaction', auth, upload.none(), async (req, res) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
-    console.log(unauthorized);
-    res.status(403);
-    throw new Error(unauthorized);
-  }
+router.post(
+  '/agents/:id/transaction',
+  auth,
+  upload.none(),
+  async (req, res) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+      console.log(unauthorized);
+      res.status(403);
+      throw new Error(unauthorized);
+    }
 
-  const { id } = req.params;
-  const { address, type } = req.body;
+    const { id } = req.params;
+    const { address, type } = req.body;
 
-  if (!type || !address) {
-    res.status(400);
-    throw new Error(requiredFields);
-  }
-  if (type !== 'sold' && type !== 'available') {
-    res.status(400);
-    throw new Error('Please provide a valid type');
-  }
+    if (!type || !address) {
+      res.status(400);
+      throw new Error(requiredFields);
+    }
+    if (type !== 'sold' && type !== 'available') {
+      res.status(400);
+      throw new Error('Please provide a valid type');
+    }
 
-  try {
-    await User.findByIdAndUpdate(id, {
-      $push: { transactions: { address, type } },
-    }).orFail();
-    res.status(201).json({ message: 'Transaction added' });
-  } catch (err) {
-    console.log(err);
-    throw err;
+    try {
+      await User.findByIdAndUpdate(id, {
+        $push: { transactions: { address, type } },
+      }).orFail();
+      res.status(201).json({ message: 'Transaction added' });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
-});
+);
 
 // Get a user
 router.get('/:id', upload.none(), async (req, res) => {
