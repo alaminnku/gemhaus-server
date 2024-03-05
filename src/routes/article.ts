@@ -41,6 +41,33 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
   }
 });
 
+// Update an article
+router.patch('/:id/update', auth, upload.none(), async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  // Validate data
+  if (!title || !content) {
+    console.log(requiredFields);
+    res.status(400);
+    throw new Error(requiredFields);
+  }
+
+  // Update article
+  try {
+    await Article.findByIdAndUpdate(id, { title, content });
+    res.status(201).json({ message: 'Article updated' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
 // Get all articles
 router.get('/', async (req, res) => {
   try {

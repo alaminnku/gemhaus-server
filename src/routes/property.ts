@@ -169,7 +169,7 @@ router.patch('/:id/update', auth, upload.array('files'), async (req, res) => {
     throw new Error(requiredFields);
   }
 
-  const existingImages = JSON.stringify(images);
+  const existingImages = JSON.parse(images);
   if (existingImages.length + files.length < 5) {
     console.log('At least five images are required');
     res.status(400);
