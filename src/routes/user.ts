@@ -9,7 +9,12 @@ import {
   isValidEmail,
   upload,
 } from '../lib/utils';
-import { invalidEmail, requiredFields, unauthorized } from '../lib/messages';
+import {
+  invalidCredentials,
+  invalidEmail,
+  requiredFields,
+  unauthorized,
+} from '../lib/messages';
 import { uploadImage } from '../config/s3';
 import auth from '../middleware/auth';
 
@@ -64,14 +69,16 @@ router.post('/sign-in', upload.none(), async (req, res) => {
     // Get the user and match password
     const user = await User.findOne({ email }).lean();
     if (!user || !user.password) {
-      res.status(400);
-      throw new Error('Invalid credentials');
+      console.log(invalidCredentials);
+      res.status(403);
+      throw new Error(invalidCredentials);
     }
     const correctPassword = await bcrypt.compare(password, user.password);
 
     if (!correctPassword) {
-      res.status(400);
-      throw new Error('Invalid credentials');
+      console.log(invalidCredentials);
+      res.status(403);
+      throw new Error(invalidCredentials);
     }
 
     deleteFields(user, ['password', 'createdAt']);
