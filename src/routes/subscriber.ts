@@ -5,7 +5,7 @@ import { MongooseError } from 'mongoose';
 
 const router = Router();
 
-router.post('/add', upload.none(), async (req, res) => {
+router.post('/', upload.none(), async (req, res) => {
   const { email } = req.body;
 
   try {
