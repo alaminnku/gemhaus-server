@@ -107,7 +107,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Delete property image
+// Delete article image
 router.delete('/:articleId/delete/:imageId', auth, async (req, res) => {
   if (!req.user || req.user.role !== 'ADMIN') {
     console.log(unauthorized);

@@ -8,6 +8,7 @@ import {
   createTokenExpiry,
   isValidEmail,
   upload,
+  deleteImage,
 } from '../lib/utils';
 import {
   invalidCredentials,
@@ -172,40 +173,58 @@ router.post('/agents', auth, upload.single('file'), async (req, res) => {
 });
 
 // Update an agent
-router.patch('/agents/:id/update', auth, upload.none(), async (req, res) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
-    console.log(unauthorized);
-    res.status(403);
-    throw new Error(unauthorized);
-  }
+router.patch(
+  '/agents/:id/update',
+  auth,
+  upload.single('file'),
+  async (req, res) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+      console.log(unauthorized);
+      res.status(403);
+      throw new Error(unauthorized);
+    }
 
-  const { id } = req.params;
-  const { name, email, phone, address, qrCodeLink, bio } = req.body;
+    const file = req.file;
+    const { id } = req.params;
+    const { name, email, phone, address, qrCodeLink, bio, image } = req.body;
 
-  if (!name || !email || !phone || !address || !qrCodeLink || !bio) {
-    res.status(400);
-    throw new Error(requiredFields);
-  }
-  if (!isValidEmail(email)) {
-    res.status(400);
-    throw new Error(invalidEmail);
-  }
+    if (!name || !email || !phone || !address || !qrCodeLink || !bio) {
+      res.status(400);
+      throw new Error(requiredFields);
+    }
+    if (!isValidEmail(email)) {
+      res.status(400);
+      throw new Error(invalidEmail);
+    }
+    if (!file && !image) {
+      console.log('Agent image is required');
+      res.status(400);
+      throw new Error('Agent image is required');
+    }
 
-  try {
-    await User.findByIdAndUpdate(id, {
-      bio,
-      name,
-      email,
-      phone,
-      address,
-      qrCodeLink,
-    });
-    res.status(201).json({ message: 'Agent updated' });
-  } catch (err) {
-    console.log(err);
-    throw err;
+    let imageUrl = image;
+    if (file) {
+      const { buffer, mimetype } = file;
+      imageUrl = await uploadImage(res, buffer, mimetype);
+    }
+
+    try {
+      await User.findByIdAndUpdate(id, {
+        bio,
+        name,
+        email,
+        phone,
+        address,
+        qrCodeLink,
+        image: imageUrl,
+      });
+      res.status(201).json({ message: 'Agent updated' });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
   }
-});
+);
 
 // Get all agents
 router.get('/agents', async (req, res) => {
@@ -380,6 +399,28 @@ router.get('/:id', upload.none(), async (req, res) => {
   try {
     const user = await User.findById(id).lean().orFail();
     res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Delete agent image
+router.delete('/agents/:userId/delete/:imageId', auth, async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
+  const { imageId, userId } = req.params;
+  try {
+    const user = await User.findById(userId).orFail();
+    user.image = '';
+
+    await deleteImage(res, imageId);
+    await user.save();
+    res.status(200).json({ message: 'Image deleted' });
   } catch (err) {
     console.log(err);
     throw err;

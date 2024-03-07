@@ -28,7 +28,6 @@ const userSchema = new Schema<UserSchema>(
     image: {
       type: String,
       trim: true,
-      required: false,
     },
     phone: {
       type: String,
