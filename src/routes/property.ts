@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { requiredFields, unauthorized } from '../lib/messages';
 import {
   deleteFields,
+  deleteImage,
   fetchHostawayData,
   getISODate,
   upload,
 } from '../lib/utils';
-import { uploadImage } from '../config/s3';
+import { uploadImage } from '../lib/utils';
 import Property from '../models/property';
 import { gateway } from '../config/braintree';
 import { HostawayCalendar } from '../types';
@@ -389,6 +390,30 @@ router.post('/:id/book', upload.none(), async (req, res) => {
     // Save user data to database
 
     res.status(200).json({ message: 'Property booked' });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+// Delete property image
+router.delete('/:propertyId/delete/:imageId', auth, async (req, res) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    console.log(unauthorized);
+    res.status(403);
+    throw new Error(unauthorized);
+  }
+
+  const { imageId, propertyId } = req.params;
+  try {
+    const property = await Property.findById(propertyId).orFail();
+    property.images = property.images.filter(
+      (image) => !image.includes(imageId)
+    );
+
+    await deleteImage(res, imageId);
+    await property.save();
+    res.status(200).json({ message: 'Image deleted' });
   } catch (err) {
     console.log(err);
     throw err;

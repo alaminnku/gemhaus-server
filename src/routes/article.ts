@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import Article from '../models/article';
 import { deleteFields, upload } from '../lib/utils';
-import { uploadImage } from '../config/s3';
 import { requiredFields, unauthorized } from '../lib/messages';
 import auth from '../middleware/auth';
+import { uploadImage } from '../lib/utils';
 
 const router = Router();
 

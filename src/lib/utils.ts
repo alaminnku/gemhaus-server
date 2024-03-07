@@ -2,6 +2,9 @@ import { randomBytes } from 'crypto';
 import multer, { MulterError } from 'multer';
 import { updateAvailableDates } from './jobs';
 import { sign } from 'jsonwebtoken';
+import { s3Client } from '../config/s3';
+import { Response } from 'express';
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 type FetchHostawayDataOptions = {
   body?: string;
@@ -113,3 +116,43 @@ export const createRefreshToken = (email: string) =>
   sign({ email }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
 
 export const createTokenExpiry = () => new Date().setTime(Date.now() + 20000);
+
+// Upload image to S3
+export async function uploadImage(
+  res: Response,
+  buffer: Buffer,
+  mimetype: string
+) {
+  const name = generateRandomString();
+  const params = {
+    Key: name,
+    Body: buffer,
+    ContentType: mimetype,
+    Bucket: process.env.AWS_BUCKET_NAME,
+  };
+
+  try {
+    await s3Client.send(new PutObjectCommand(params));
+    return `${process.env.CLOUDFRONT_DOMAIN}/${name}`;
+  } catch (err) {
+    console.log('Failed to upload image');
+    res.status(500);
+    throw new Error('Failed to upload image');
+  }
+}
+
+// Delete image from S3
+export async function deleteImage(res: Response, name: string) {
+  const params = {
+    Key: name,
+    Bucket: process.env.AWS_BUCKET_NAME,
+  };
+
+  try {
+    await s3Client.send(new DeleteObjectCommand(params));
+  } catch (err) {
+    console.log('Failed to delete image');
+    res.status(500);
+    throw new Error('Failed to delete image');
+  }
+}

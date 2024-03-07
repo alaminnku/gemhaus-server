@@ -15,8 +15,8 @@ import {
   requiredFields,
   unauthorized,
 } from '../lib/messages';
-import { uploadImage } from '../config/s3';
 import auth from '../middleware/auth';
+import { uploadImage } from '../lib/utils';
 
 const router = Router();
 
