@@ -156,3 +156,6 @@ export async function deleteImage(res: Response, name: string) {
     throw new Error('Failed to delete image');
   }
 }
+
+export const createImageId = (url: string) =>
+  url.split('/')[url.split('/').length - 1];

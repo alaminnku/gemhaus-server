@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requiredFields, unauthorized } from '../lib/messages';
 import {
+  createImageId,
   deleteFields,
   deleteImage,
   fetchHostawayData,
@@ -141,6 +142,7 @@ router.patch('/:id/update', auth, upload.array('files'), async (req, res) => {
     description,
     isFeatured,
     insuranceFee,
+    deletedImages,
     serviceFeePercent,
     salesTaxPercent,
     lodgingTaxPercent,
@@ -169,16 +171,15 @@ router.patch('/:id/update', auth, upload.array('files'), async (req, res) => {
     res.status(400);
     throw new Error(requiredFields);
   }
-
-  const existingImages = JSON.parse(images);
-  if (existingImages.length + files.length < 5) {
+  const prevImages = JSON.parse(images);
+  if (prevImages.length + files.length < 5) {
     console.log('At least five images are required');
     res.status(400);
     throw new Error('At least five images are required');
   }
 
   // Upload new images to S3
-  let updatedImages = [...existingImages];
+  let updatedImages = prevImages;
   for (let i = 0; i < files.length; i++) {
     const { buffer, mimetype } = files[i];
     const image = await uploadImage(res, buffer, mimetype);
@@ -209,6 +210,13 @@ router.patch('/:id/update', auth, upload.array('files'), async (req, res) => {
         offerings.includes(offering.name)
       ),
     });
+
+    // Delete images from S3
+    const deletedUrls = JSON.parse(deletedImages);
+    for (const deletedUrl of deletedUrls) {
+      const id = createImageId(deletedUrl);
+      await deleteImage(res, id);
+    }
     res.status(200).json({ message: 'Property updated' });
   } catch (err) {
     console.log(err);
@@ -390,30 +398,6 @@ router.post('/:id/book', upload.none(), async (req, res) => {
     // Save user data to database
 
     res.status(200).json({ message: 'Property booked' });
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-});
-
-// Delete property image
-router.delete('/:propertyId/delete/:imageId', auth, async (req, res) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
-    console.log(unauthorized);
-    res.status(403);
-    throw new Error(unauthorized);
-  }
-
-  const { imageId, propertyId } = req.params;
-  try {
-    const property = await Property.findById(propertyId).orFail();
-    property.images = property.images.filter(
-      (image) => !image.includes(imageId)
-    );
-
-    await deleteImage(res, imageId);
-    await property.save();
-    res.status(200).json({ message: 'Image deleted' });
   } catch (err) {
     console.log(err);
     throw err;

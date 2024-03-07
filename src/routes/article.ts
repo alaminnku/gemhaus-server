@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import Article from '../models/article';
-import { deleteFields, deleteImage, upload } from '../lib/utils';
+import { createImageId, deleteFields, deleteImage, upload } from '../lib/utils';
 import { requiredFields, unauthorized } from '../lib/messages';
 import auth from '../middleware/auth';
 import { uploadImage } from '../lib/utils';
@@ -51,7 +51,7 @@ router.patch('/:id/update', auth, upload.single('file'), async (req, res) => {
 
   const file = req.file;
   const { id } = req.params;
-  const { title, content, image } = req.body;
+  const { title, content, image, deletedImage } = req.body;
 
   // Validate data
   if (!title || !content) {
@@ -71,9 +71,14 @@ router.patch('/:id/update', auth, upload.single('file'), async (req, res) => {
     imageUrl = await uploadImage(res, buffer, mimetype);
   }
 
-  // Update article
   try {
     await Article.findByIdAndUpdate(id, { title, content, image: imageUrl });
+
+    // Delete image from S3
+    if (deletedImage) {
+      const id = createImageId(deletedImage);
+      await deleteImage(res, id);
+    }
     res.status(201).json({ message: 'Article updated' });
   } catch (err) {
     console.log(err);
@@ -101,28 +106,6 @@ router.get('/:id', async (req, res) => {
       .lean()
       .orFail();
     res.status(200).json(article);
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-});
-
-// Delete article image
-router.delete('/:articleId/delete/:imageId', auth, async (req, res) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
-    console.log(unauthorized);
-    res.status(403);
-    throw new Error(unauthorized);
-  }
-
-  const { imageId, articleId } = req.params;
-  try {
-    const article = await Article.findById(articleId).orFail();
-    article.image = '';
-
-    await deleteImage(res, imageId);
-    await article.save();
-    res.status(200).json({ message: 'Image deleted' });
   } catch (err) {
     console.log(err);
     throw err;
