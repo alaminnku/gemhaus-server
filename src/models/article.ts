@@ -16,7 +16,6 @@ const articleSchema = new Schema<ArticleSchema>(
     image: {
       type: String,
       trim: true,
-      required: [true, 'Please provide image URL'],
     },
   },
   {
