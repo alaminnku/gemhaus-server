@@ -21,12 +21,13 @@ export type UserSchema = {
 };
 
 export type UserProperty = {
-  isFeatured: boolean;
+  _id: string;
   address: string;
   city: string;
   state: string;
   price: number;
   images: string[];
+  isFeatured: boolean;
   description: string;
 };
 

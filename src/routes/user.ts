@@ -318,20 +318,38 @@ router.post(
 router.patch(
   '/agents/:agentId/properties/:propertyId',
   auth,
-  upload.none(),
+  upload.array('files'),
   async (req, res) => {
     if (!req.user || req.user.role !== 'ADMIN') {
       res.status(403);
       throw new Error(unauthorized);
     }
 
+    const files = req.files as Express.Multer.File[];
     const { agentId, propertyId } = req.params;
-    const { address, city, state, price, isFeatured, description } = req.body;
+    const { address, city, state, price, images, isFeatured, description } =
+      req.body;
 
+    // Validate data
     if (!address || !city || !state || !price || !isFeatured || !description) {
       console.log(requiredFields);
       res.status(400);
       throw new Error(requiredFields);
+    }
+
+    const existingImages = JSON.parse(images);
+    if (existingImages.length + files.length < 1) {
+      console.log('At least one image are required');
+      res.status(400);
+      throw new Error('At least one image are required');
+    }
+
+    // Upload new images to S3
+    let updatedImages = existingImages;
+    for (let i = 0; i < files.length; i++) {
+      const { buffer, mimetype } = files[i];
+      const image = await uploadImage(res, buffer, mimetype);
+      updatedImages.push(image);
     }
 
     try {
@@ -343,6 +361,7 @@ router.patch(
             'properties.$.city': city,
             'properties.$.state': state,
             'properties.$.price': price,
+            'properties.$.images': updatedImages,
             'properties.$.description': description,
             'properties.$.isFeatured': isFeatured ? true : false,
           },
@@ -426,5 +445,46 @@ router.delete('/agents/:userId/delete/:imageId', auth, async (req, res) => {
     throw err;
   }
 });
+
+// Delete agent's property image
+router.delete(
+  '/agents/:userId/properties/:propertyId/delete/:imageId',
+  auth,
+  async (req, res) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+      console.log(unauthorized);
+      res.status(403);
+      throw new Error(unauthorized);
+    }
+
+    const { imageId, userId, propertyId } = req.params;
+    try {
+      const agent = await User.findById(userId).orFail();
+      if (!agent.properties) {
+        console.log('No properties found');
+        res.status(400);
+        throw new Error('No properties found');
+      }
+
+      const properties = [];
+      for (const property of agent.properties) {
+        let images = property.images;
+        if (property._id.toString() === propertyId) {
+          images = images.filter((image) => !image.includes(imageId));
+        }
+        property.images = images;
+        properties.push(property);
+      }
+      agent.properties = properties;
+
+      await deleteImage(res, imageId);
+      await agent.save();
+      res.status(200).json({ message: 'Image deleted' });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+);
 
 export default router;
