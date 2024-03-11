@@ -38,8 +38,9 @@ export type UserTransaction = {
 
 export type ArticleSchema = {
   title: string;
-  content: string;
+  excerpt: string;
   image: string;
+  content: string;
 };
 
 export type PropertySchema = {

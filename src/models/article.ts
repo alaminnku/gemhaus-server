@@ -8,6 +8,11 @@ const articleSchema = new Schema<ArticleSchema>(
       trim: true,
       required: [true, 'Please provide a title'],
     },
+    excerpt: {
+      type: String,
+      trim: true,
+      required: [true, 'Please provide an excerpt'],
+    },
     content: {
       type: String,
       trim: true,

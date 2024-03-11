@@ -16,10 +16,10 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
   }
 
   const file = req.file;
-  const { title, content } = req.body;
+  const { title, excerpt, content } = req.body;
 
   // Validate data
-  if (!title || !content || !file) {
+  if (!title || !excerpt || !content || !file) {
     console.log(requiredFields);
     res.status(400);
     throw new Error(requiredFields);
@@ -31,7 +31,7 @@ router.post('/', auth, upload.single('file'), async (req, res) => {
 
   // Create article
   try {
-    const response = await Article.create({ title, content, image });
+    const response = await Article.create({ title, excerpt, content, image });
     const article = response.toObject();
     deleteFields(article, ['createdAt']);
     res.status(201).json(article);
@@ -51,10 +51,10 @@ router.patch('/:id/update', auth, upload.single('file'), async (req, res) => {
 
   const file = req.file;
   const { id } = req.params;
-  const { title, content, image, deletedImage } = req.body;
+  const { title, excerpt, content, image, deletedImage } = req.body;
 
   // Validate data
-  if (!title || !content) {
+  if (!title || !excerpt || !content) {
     console.log(requiredFields);
     res.status(400);
     throw new Error(requiredFields);
@@ -72,7 +72,12 @@ router.patch('/:id/update', auth, upload.single('file'), async (req, res) => {
   }
 
   try {
-    await Article.findByIdAndUpdate(id, { title, content, image: imageUrl });
+    await Article.findByIdAndUpdate(id, {
+      title,
+      excerpt,
+      content,
+      image: imageUrl,
+    });
 
     // Delete image from S3
     if (deletedImage) {
