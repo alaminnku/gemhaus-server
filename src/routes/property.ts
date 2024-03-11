@@ -5,7 +5,6 @@ import {
   deleteFields,
   deleteImage,
   fetchHostawayData,
-  getISODate,
   upload,
 } from '../lib/utils';
 import { uploadImage } from '../lib/utils';
@@ -308,7 +307,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
     const datesMap: { [key: string]: boolean } = {};
     const currDate = new Date(arrivalDate);
     while (currDate < new Date(departureDate)) {
-      datesMap[getISODate(currDate)] = true;
+      datesMap[currDate.toISOString().split('T')[0]] = true;
       currDate.setDate(currDate.getDate() + 1);
     }
     const bookingDates = calendar.filter((el) => datesMap[el.date]);

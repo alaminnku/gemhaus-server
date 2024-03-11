@@ -79,10 +79,6 @@ export async function fetchHostawayData(
   throw new Error('Error fetching Hostaway data');
 }
 
-// Get ISO date
-export const getISODate = (input: Date | string) =>
-  new Date(input).toISOString().split('T')[0];
-
 // Scheduler function
 export function scheduler() {
   setInterval(async () => {
