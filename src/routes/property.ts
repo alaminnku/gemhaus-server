@@ -385,6 +385,7 @@ router.post('/:id/book', upload.none(), async (req, res) => {
       checkInTime: 16,
       checkOutTime: 11,
       guestPicture: null,
+      isPaid: true,
       taxAmount: lodgingTax + salesTax,
     };
 
