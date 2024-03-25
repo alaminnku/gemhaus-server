@@ -247,7 +247,7 @@ router.patch(
 router.get('/agents', async (req, res) => {
   try {
     const agents = await User.find({ role: 'AGENT' })
-      .select('name email phone image')
+      .select('name email phone image address')
       .lean()
       .orFail();
     res.status(200).json(agents);
